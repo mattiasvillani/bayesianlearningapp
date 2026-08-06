@@ -1,0 +1,109 @@
+---
+title: Split-Normal
+toc: false
+---
+
+# Split-Normal distribution
+
+```js
+import jStat from "npm:jstat";
+import {mvcolors} from "../components/mvcolors.js";
+```
+
+<div class="dist-layout">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "location, μ"}),
+  Inputs.range([0.01, 10], {value: 1, step: 0.1, label: "left scale, σ₁"}),
+  Inputs.range([0.01, 10], {value: 1.5, step: 0.01, label: "right scale, σ₂"}),
+  Inputs.range([-10, 10], {value: -1, step: 0.01, label: "quantile"})
+]));
+```
+
+```js
+const [mu, sigma1, sigma2, quantile] = params;
+
+function splitnpdf(x, mu, sigma1, sigma2) {
+  const c = Math.sqrt(2 / Math.PI) / (sigma1 + sigma2);
+  return x <= mu
+    ? c * Math.exp(-(0.5 / sigma1 ** 2) * (x - mu) ** 2)
+    : c * Math.exp(-(0.5 / sigma2 ** 2) * (x - mu) ** 2);
+}
+function splitncdf(x, mu, sigma1, sigma2) {
+  const c = Math.sqrt(2 / Math.PI) / (sigma1 + sigma2);
+  if (x <= mu) return c * Math.sqrt(2 * Math.PI) * sigma1 * jStat.normal.cdf((x - mu) / sigma1, 0, 1);
+  return c * Math.sqrt(2 * Math.PI) * sigma1 * 0.5 + (c * Math.sqrt(2 * Math.PI) * sigma2 * jStat.normal.cdf((x - mu) / sigma2, 0, 1) - 0.5);
+}
+
+const mean = mu + Math.sqrt(2 / Math.PI) * (sigma2 - sigma1);
+const variance = (1 - 2 / Math.PI) * (sigma2 - sigma1) ** 2 + sigma1 * sigma2;
+const skewness = Math.sqrt(2 / Math.PI) * (sigma2 - sigma1) * ((4 / Math.PI - 1) * (sigma2 - sigma1) ** 2 + sigma1 * sigma2);
+
+const pdfdata = d3.range(mu - 8 * sigma1, mu + 8 * sigma2, 0.01).map((x) => ({x, pdf: splitnpdf(x, mu, sigma1, sigma2)}));
+const cdfval = splitncdf(quantile, mu, sigma1, sigma2);
+```
+
+```js
+Plot.plot({
+  width: Math.min(720, width),
+  x: {label: "x", axis: true},
+  y: {label: "f(x)", axis: false},
+  marks: [
+    Plot.ruleY([0]),
+    Plot.line(pdfdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
+    Plot.areaY(pdfdata, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2})
+  ]
+})
+```
+
+</div>
+
+<div class="dist-side">
+
+<div class="card">
+
+### Properties
+
+```tex
+\begin{aligned}
+f(x) &= \begin{cases} c \cdot \kappa(x\mid\mu,\sigma_1) & x \leq \mu \\ c \cdot \kappa(x\mid\mu,\sigma_2) & x > \mu \end{cases} \\[0.4em]
+c &= \sqrt{2/\pi}\,(\sigma_1+\sigma_2)^{-1} \\[0.4em]
+\mathbb{E}(X) &= \mu + \sqrt{2/\pi}(\sigma_2-\sigma_1) \\[0.4em]
+\mathbb{V}(X) &= (1-2/\pi)(\sigma_2-\sigma_1)^2 + \sigma_1\sigma_2
+\end{aligned}
+```
+
+</div>
+
+<div class="card">
+
+### Numerical properties
+
+|  |  |
+|---|---|
+| ${tex`\mathbb{E}(X)`} | ${mean.toPrecision(3)} |
+| ${tex`\mathbb{S}(X)`} | ${Math.sqrt(variance).toPrecision(3)} |
+| ${tex`\text{Skewness}(X)`} | ${skewness.toPrecision(3)} |
+| ${tex`P(X \le ${quantile.toFixed(2)})`} | ${cdfval.toPrecision(4)} |
+
+</div>
+
+<a class="notebook-link" href="https://observablehq.com/@mattiasvillani/split-normal-distribution" target="_blank" rel="noopener noreferrer">
+<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="2" y="1.5" width="9" height="13" rx="1.2" stroke="currentColor" stroke-width="1.1"/>
+  <line x1="4.2" y1="4.4" x2="8.8" y2="4.4" stroke="currentColor" stroke-width="0.9"/>
+  <line x1="4.2" y1="6.6" x2="8.8" y2="6.6" stroke="currentColor" stroke-width="0.9"/>
+  <line x1="4.2" y1="8.8" x2="7.2" y2="8.8" stroke="currentColor" stroke-width="0.9"/>
+  <circle cx="12.3" cy="12.3" r="2.3" fill="#6C8EBF"/>
+  <circle cx="10.4" cy="13.2" r="1.6" fill="#c0a34d"/>
+  <circle cx="13.5" cy="13.6" r="1.4" fill="#007878"/>
+</svg>
+Original notebook ↗
+</a>
+
+</div>
+
+</div>
