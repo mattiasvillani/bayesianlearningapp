@@ -11,7 +11,22 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [mu, tau, nu, quantile] = params;
+
+const x = d3.range(mu - 8 * tau, mu + 8 * tau, 0.01);
+const studentdata = x.map((x) => ({x, pdf: jStat.studentt.pdf((x - mu) / tau, nu) / tau}));
+const normaldata = x.map((x) => ({x, pdf: jStat.normal.pdf(x, mu, tau)}));
+const studentcdf = jStat.studentt.cdf((quantile - mu) / tau, nu);
+const normcdf = jStat.normal.cdf(quantile, mu, tau);
+
+const mean = nu > 1 ? mu : NaN;
+const variance = nu > 2 ? (nu / (nu - 2)) * tau ** 2 : NaN;
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -28,18 +43,9 @@ const params = view(Inputs.form([
 const shownormal = view(Inputs.toggle({value: false, label: "show normal"}));
 ```
 
-```js
-const [mu, tau, nu, quantile] = params;
+</div>
 
-const x = d3.range(mu - 8 * tau, mu + 8 * tau, 0.01);
-const studentdata = x.map((x) => ({x, pdf: jStat.studentt.pdf((x - mu) / tau, nu) / tau}));
-const normaldata = x.map((x) => ({x, pdf: jStat.normal.pdf(x, mu, tau)}));
-const studentcdf = jStat.studentt.cdf((quantile - mu) / tau, nu);
-const normcdf = jStat.normal.cdf(quantile, mu, tau);
-
-const mean = nu > 1 ? mu : NaN;
-const variance = nu > 2 ? (nu / (nu - 2)) * tau ** 2 : NaN;
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -54,6 +60,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

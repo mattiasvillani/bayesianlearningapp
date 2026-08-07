@@ -11,7 +11,19 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [a, b, c, quantile] = params;
+
+const mean = (a + b + c) / 3;
+const variance = (a ** 2 + b ** 2 + c ** 2 - a * b - a * c - b * c) / 18;
+
+const pdf = d3.range(-5, 5, 0.01).map((x) => ({x, pdf: jStat.triangular.pdf(x, a, b, c)}));
+const cdf = jStat.triangular.cdf(quantile, a, b, c);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -24,15 +36,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const [a, b, c, quantile] = params;
+</div>
 
-const mean = (a + b + c) / 3;
-const variance = (a ** 2 + b ** 2 + c ** 2 - a * b - a * c - b * c) / 18;
-
-const pdf = d3.range(-5, 5, 0.01).map((x) => ({x, pdf: jStat.triangular.pdf(x, a, b, c)}));
-const cdf = jStat.triangular.cdf(quantile, a, b, c);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -46,6 +52,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

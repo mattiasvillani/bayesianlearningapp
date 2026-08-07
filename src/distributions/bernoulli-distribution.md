@@ -5,7 +5,9 @@ toc: false
 
 # Bernoulli distribution
 
-<div class="dist-layout">
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -17,6 +19,10 @@ import {notebookLink} from "../components/notebookLink.js";
 ```js
 const p = view(Inputs.range([0, 1], {value: 0.5, step: 0.01, label: "p"}));
 ```
+
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -34,6 +40,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.1, 100], {value: 3, step: 0.1, label: "μ"}),
-  Inputs.range([0.1, 5], {value: 1, step: 0.1, label: "λ"}),
-  Inputs.range([0, 10], {value: 1, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 function inversegaussianpdf(x, mu, lambda) {
   return Math.sqrt(lambda / (2 * Math.PI * x ** 3)) * Math.exp(-(lambda * (x - mu) ** 2) / (2 * mu ** 2 * x));
@@ -42,6 +30,24 @@ const variance = mu ** 3 / lambda;
 const modeX = mu * (Math.sqrt(1 + (9 * mu ** 2) / (4 * lambda ** 2)) - (3 * mu) / (2 * lambda));
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.1, 100], {value: 3, step: 0.1, label: "μ"}),
+  Inputs.range([0.1, 5], {value: 1, step: 0.1, label: "λ"}),
+  Inputs.range([0, 10], {value: 1, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -54,6 +60,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

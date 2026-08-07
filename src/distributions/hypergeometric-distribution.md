@@ -11,7 +11,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const mean = n * K / N;
+const variance = (n * K / N) * ((N - K) / N) * ((N - n) / (N - 1));
+const xMin = Math.max(0, n + K - N);
+const xMax = Math.max(xMin + 1, Math.ceil(mean + 5 * Math.sqrt(variance || 0)) + 1);
+const hypergeopdf = d3.range(xMin, xMax, 1).map((x) => ({x, pdf: jStat.hypgeom.pdf(x, N, K, n)}));
+const hypergeocdf = jStat.hypgeom.cdf(quantile, N, K, n);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -31,14 +42,9 @@ const n = view(Inputs.range([0, N], {value: 100, step: 1, label: "n (sample size
 const quantile = view(Inputs.range([Math.max(0, n + K - N), Math.min(n, K)], {value: Math.min(n, K), step: 1, label: "quantile"}));
 ```
 
-```js
-const mean = n * K / N;
-const variance = (n * K / N) * ((N - K) / N) * ((N - n) / (N - 1));
-const xMin = Math.max(0, n + K - N);
-const xMax = Math.max(xMin + 1, Math.ceil(mean + 5 * Math.sqrt(variance || 0)) + 1);
-const hypergeopdf = d3.range(xMin, xMax, 1).map((x) => ({x, pdf: jStat.hypgeom.pdf(x, N, K, n)}));
-const hypergeocdf = jStat.hypgeom.cdf(quantile, N, K, n);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -57,6 +63,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

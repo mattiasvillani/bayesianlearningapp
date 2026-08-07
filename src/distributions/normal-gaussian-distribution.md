@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-3, 3], {value: 0, step: 0.1, label: "μ"}),
-  Inputs.range([0.1, 3], {value: 1, step: 0.1, label: "σ"}),
-  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
-]));
-```
-
 ```js
 const normpdf = d3.range(-10, 10, 0.01).map((x) => ({x, pdf: jStat.normal.pdf(x, params[0], params[1])}));
 const normcdf = jStat.normal.cdf(params[2], params[0], params[1]);
@@ -34,7 +22,25 @@ const textdata = [
 ];
 ```
 
-<div class="grid grid-cols-2" style="margin: 0.5rem 0 0 0;">
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-3, 3], {value: 0, step: 0.1, label: "μ"}),
+  Inputs.range([0.1, 3], {value: 1, step: 0.1, label: "σ"}),
+  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
+<div class="grid grid-cols-2" style="margin: 0;">
   <div>
 
 ```js
@@ -79,6 +85,8 @@ Plot.plot({
 ```
 
   </div>
+</div>
+
 </div>
 
 </div>

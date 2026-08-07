@@ -11,20 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.1, 20], {value: 3, step: 0.1, label: "α"}),
-  Inputs.range([0.1, 20], {value: 3, step: 0.1, label: "β"}),
-  Inputs.range([-0.55, 10], {value: 1, step: 0.1, label: "γ"}),
-  Inputs.range([0.1, 20], {value: 1, step: 0.1, label: "δ"}),
-  Inputs.range([0, 10], {value: 0.2, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 function beta4pdf(x, alpha, beta, gamma, delta) {
   return (Math.abs(gamma) * (x / delta) ** (alpha * gamma - 1) * (1 - (x / delta) ** gamma) ** (beta - 1)) /
@@ -48,6 +34,26 @@ const mean = delta * jStat.betafn(alpha + 1 / gamma, beta) / jStat.betafn(alpha,
 const variance = delta ** 2 * jStat.betafn(alpha + 2 / gamma, beta) / jStat.betafn(alpha, beta) - mean ** 2;
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.1, 20], {value: 3, step: 0.1, label: "α"}),
+  Inputs.range([0.1, 20], {value: 3, step: 0.1, label: "β"}),
+  Inputs.range([-0.55, 10], {value: 1, step: 0.1, label: "γ"}),
+  Inputs.range([0.1, 20], {value: 1, step: 0.1, label: "δ"}),
+  Inputs.range([0, 10], {value: 0.2, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -61,6 +67,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

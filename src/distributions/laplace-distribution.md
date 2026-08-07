@@ -11,22 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "location μ"}),
-  Inputs.range([0.1, 5], {value: 1, step: 0.01, label: "scale b"}),
-  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
-]));
-```
-
-```js
-const shownormal = view(Inputs.toggle({value: false, label: "show normal (moment matched)"}));
-```
-
 ```js
 const [mu, b, quantile] = params;
 
@@ -47,6 +31,28 @@ const normaldata = x.map((x) => ({x, pdf: jStat.normal.pdf(x, mu, sigmaMatched)}
 const cdfval = laplacecdf(quantile, mu, b);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "location μ"}),
+  Inputs.range([0.1, 5], {value: 1, step: 0.01, label: "scale b"}),
+  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
+]));
+```
+
+```js
+const shownormal = view(Inputs.toggle({value: false, label: "show normal (moment matched)"}));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -60,6 +66,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

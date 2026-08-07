@@ -10,7 +10,23 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+function H(N, s) {
+  let harmonicnumber = 0;
+  for (let k = 1; k <= N; k++) harmonicnumber += 1 / (k ** s);
+  return harmonicnumber;
+}
+
+const N = params[0], s = params[1];
+const mean = H(N, s - 1) / H(N, s);
+const variance = H(N, s - 2) / H(N, s) - mean ** 2;
+const pdfdata = d3.range(1, N + 1, 1).map((x) => ({x, pdf: (1 / x ** s) / H(N, s)}));
+const cdf = H(quantile, s) / H(N, s);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -25,19 +41,9 @@ const params = view(Inputs.form([
 const quantile = view(Inputs.range([1, params[0]], {value: 2, step: 1, label: "quantile"}));
 ```
 
-```js
-function H(N, s) {
-  let harmonicnumber = 0;
-  for (let k = 1; k <= N; k++) harmonicnumber += 1 / (k ** s);
-  return harmonicnumber;
-}
+</div>
 
-const N = params[0], s = params[1];
-const mean = H(N, s - 1) / H(N, s);
-const variance = H(N, s - 2) / H(N, s) - mean ** 2;
-const pdfdata = d3.range(1, N + 1, 1).map((x) => ({x, pdf: (1 / x ** s) / H(N, s)}));
-const cdf = H(quantile, s) / H(N, s);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -56,6 +62,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

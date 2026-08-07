@@ -11,19 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-5, 5], {value: -2, step: 0.1, label: "μ"}),
-  Inputs.range([0.01, 5], {value: 0.5, step: 0.01, label: "σ"}),
-  Inputs.range([-5, 5], {value: 0, step: 0.01, label: "ξ"}),
-  Inputs.range([-5, 5], {value: -1, step: 0.01, label: "quantile"})
-]));
-```
-
 ```js
 const EULER_MASCHERONI = 0.5772156649015329;
 const [mu, sigma, xi, quantile] = params;
@@ -55,6 +42,25 @@ const pdfdata = d3.range(supp[0], supp[1], Math.max((supp[1] - supp[0]) / 1000, 
 const cdfval = cdfgev(quantile);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-5, 5], {value: -2, step: 0.1, label: "μ"}),
+  Inputs.range([0.01, 5], {value: 0.5, step: 0.01, label: "σ"}),
+  Inputs.range([-5, 5], {value: 0, step: 0.01, label: "ξ"}),
+  Inputs.range([-5, 5], {value: -1, step: 0.01, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -67,6 +73,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

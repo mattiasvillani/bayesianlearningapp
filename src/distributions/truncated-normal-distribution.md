@@ -11,20 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "μ"}),
-  Inputs.range([0.01, 20], {value: 1, step: 0.1, label: "σ"}),
-  Inputs.range([-5, 5], {value: -2, step: 0.1, label: "a"}),
-  Inputs.range([-5, 5], {value: 3, step: 0.1, label: "b"}),
-  Inputs.range([-5, 5], {value: -1, step: 0.01, label: "quantile"})
-]));
-```
-
 ```js
 const [mu, sigma, a, b, quantile] = params;
 
@@ -47,6 +33,26 @@ const pdfdata = d3.range(-5, 5, 0.01).map((x) => ({x, pdf: truncnormalpdf(x, mu,
 const cdfval = truncnormalcdf(quantile, mu, sigma, a, b);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "μ"}),
+  Inputs.range([0.01, 20], {value: 1, step: 0.1, label: "σ"}),
+  Inputs.range([-5, 5], {value: -2, step: 0.1, label: "a"}),
+  Inputs.range([-5, 5], {value: 3, step: 0.1, label: "b"}),
+  Inputs.range([-5, 5], {value: -1, step: 0.01, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -59,6 +65,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

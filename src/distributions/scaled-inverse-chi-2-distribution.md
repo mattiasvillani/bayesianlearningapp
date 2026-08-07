@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.1, 100], {value: 3, step: 0.1, label: "ν"}),
-  Inputs.range([0.1, 5], {value: 1, step: 0.1, label: "τ²"}),
-  Inputs.range([0, 5], {value: 1, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 function scaledinvchi2pdf(x, nu, tau2) {
   // ScaledInverseChiSq(ν,τ²) = InverseGamma(ν/2, ν*τ²/2)
@@ -36,6 +24,24 @@ const mean = nu * tau2 / (nu - 2);
 const variance = 2 * tau2 ** 2 / ((nu - 2) ** 2 * (nu - 4));
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.1, 100], {value: 3, step: 0.1, label: "ν"}),
+  Inputs.range([0.1, 5], {value: 1, step: 0.1, label: "τ²"}),
+  Inputs.range([0, 5], {value: 1, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -48,6 +54,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

@@ -11,20 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "location, μ"}),
-  Inputs.range([0.01, 10], {value: 1, step: 0.1, label: "scale, τ"}),
-  Inputs.range([0.01, 10], {value: 1.3, step: 0.01, label: "skew, λ"}),
-  Inputs.range([1, 50], {value: 4, step: 1, label: "df, ν"}),
-  Inputs.range([-10, 10], {value: -1, step: 0.01, label: "quantile"})
-]));
-```
-
 ```js
 const [mu, tau, lambda, nu, quantile] = params;
 
@@ -54,6 +40,26 @@ const pdfdata = d3.range(mu - 8 * tau * Math.max(1, lambda), mu + 8 * tau * Math
 const cdfval = splittcdf(quantile, mu, tau, lambda, nu);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "location, μ"}),
+  Inputs.range([0.01, 10], {value: 1, step: 0.1, label: "scale, τ"}),
+  Inputs.range([0.01, 10], {value: 1.3, step: 0.01, label: "skew, λ"}),
+  Inputs.range([1, 50], {value: 4, step: 1, label: "df, ν"}),
+  Inputs.range([-10, 10], {value: -1, step: 0.01, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -66,6 +72,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

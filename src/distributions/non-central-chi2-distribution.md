@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([1, 20], {value: 2, step: 0.1, label: "k"}),
-  Inputs.range([1, 20], {value: 1, step: 0.1, label: "λ"}),
-  Inputs.range([Number.EPSILON, 20], {value: 2, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 // Poisson(λ/2)-mixture of central chi-squared(k+2i) — exact, and (unlike a modified
 // Bessel function I_{k/2-1}) works for the non-integer k this slider allows.
@@ -53,6 +41,24 @@ const sd = Math.sqrt(2 * (k + 2 * lambda));
 const cdf = nccdf(params[2], terms);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([1, 20], {value: 2, step: 0.1, label: "k"}),
+  Inputs.range([1, 20], {value: 1, step: 0.1, label: "λ"}),
+  Inputs.range([Number.EPSILON, 20], {value: 2, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -65,6 +71,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

@@ -11,19 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "α"}),
-  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "β"}),
-  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "ν"}),
-  Inputs.range([0, 20], {value: 1, step: 1, label: "quantile"})
-]));
-```
-
 ```js
 function poissongammapdf(x, alpha, beta, nu) {
   return ((beta ** alpha) / jStat.gammafn(alpha)) * (jStat.gammafn(alpha + x) / jStat.factorial(x)) * ((nu ** x) / ((beta + nu) ** (alpha + x)));
@@ -36,6 +23,25 @@ const pdfdata = d3.range(0, Math.floor(mean + 5 * Math.sqrt(variance)) + 1, 1)
   .map((x) => ({x, pdf: poissongammapdf(x, alpha, beta, nu)}));
 const poisgamcdf = d3.sum(pdfdata.filter((d) => d.x <= quantile).map((d) => d.pdf));
 ```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "α"}),
+  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "β"}),
+  Inputs.range([0.1, 20], {value: 2, step: 0.1, label: "ν"}),
+  Inputs.range([0, 20], {value: 1, step: 1, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -54,6 +60,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

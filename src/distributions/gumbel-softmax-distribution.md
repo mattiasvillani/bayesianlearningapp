@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.01, 0.99], {value: 0.3, step: 0.01, label: "π₁"}),
-  Inputs.range([0.01, 0.99], {value: 0.5, step: 0.01, label: "π₂"}),
-  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "τ"})
-]));
-```
-
 ```js
 function gumbelSoftmaxPdf(x, Pi, tau) {
   const K = Pi.length;
@@ -54,6 +42,24 @@ if (pi3 > 0) {
 const maxpdf = grid.length ? d3.max(grid, (d) => d.pdf) : 1;
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.01, 0.99], {value: 0.3, step: 0.01, label: "π₁"}),
+  Inputs.range([0.01, 0.99], {value: 0.5, step: 0.01, label: "π₂"}),
+  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "τ"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 pi3 > 0
   ? Plot.plot({
@@ -71,6 +77,8 @@ pi3 > 0
     })
   : html`<p>Probabilities outside the unit simplex (π₁ + π₂ must be ≤ 1).</p>`
 ```
+
+</div>
 
 </div>
 

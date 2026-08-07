@@ -10,18 +10,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "μ"}),
-  Inputs.range([0.1, 10], {value: 1, step: 0.1, label: "s"}),
-  Inputs.range([-10, 10], {value: -1, step: 0.1, label: "quantile"})
-]));
-```
-
 ```js
 const [mu, s, quantile] = params;
 
@@ -39,6 +27,24 @@ const pdfdata = d3.range(mu - 10 * s, mu + 10 * s, 0.05).map((x) => ({x, pdf: pd
 const cdfval = cdf_func(quantile, mu, s);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "μ"}),
+  Inputs.range([0.1, 10], {value: 1, step: 0.1, label: "s"}),
+  Inputs.range([-10, 10], {value: -1, step: 0.1, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -51,6 +57,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

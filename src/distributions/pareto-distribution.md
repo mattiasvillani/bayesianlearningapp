@@ -11,7 +11,17 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [xm, alpha] = params;
+const paretopdf = d3.range(xm, 10, 0.01).map((x) => ({x, pdf: jStat.pareto.pdf(x, xm, alpha)}));
+const paretocdf = jStat.pareto.cdf(quantile, xm, alpha);
+const mean = alpha > 1 ? (alpha * xm) / (alpha - 1) : Infinity;
+const variance = alpha > 2 ? (alpha * xm ** 2) / ((alpha - 1) ** 2 * (alpha - 2)) : Infinity;
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -26,13 +36,9 @@ const params = view(Inputs.form([
 const quantile = view(Inputs.range([params[0], 10], {value: params[0] + 1, step: 0.01, label: "Quantile:"}));
 ```
 
-```js
-const [xm, alpha] = params;
-const paretopdf = d3.range(xm, 10, 0.01).map((x) => ({x, pdf: jStat.pareto.pdf(x, xm, alpha)}));
-const paretocdf = jStat.pareto.cdf(quantile, xm, alpha);
-const mean = alpha > 1 ? (alpha * xm) / (alpha - 1) : Infinity;
-const variance = alpha > 2 ? (alpha * xm ** 2) / ((alpha - 1) ** 2 * (alpha - 2)) : Infinity;
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -46,6 +52,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

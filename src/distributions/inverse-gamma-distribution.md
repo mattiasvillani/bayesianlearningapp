@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.01, 10], {value: 3, step: 0.01, label: "shape α"}),
-  Inputs.range([0.01, 300], {value: 1, step: 0.01, label: "scale β"}),
-  Inputs.range([0, 10], {value: 1, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 const [alpha, beta] = params;
 
@@ -38,6 +26,24 @@ const mean = alpha > 1 ? beta / (alpha - 1) : Infinity;
 const variance = alpha > 2 ? beta ** 2 / ((alpha - 1) ** 2 * (alpha - 2)) : Infinity;
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.01, 10], {value: 3, step: 0.01, label: "shape α"}),
+  Inputs.range([0.01, 300], {value: 1, step: 0.01, label: "scale β"}),
+  Inputs.range([0, 10], {value: 1, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -50,6 +56,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

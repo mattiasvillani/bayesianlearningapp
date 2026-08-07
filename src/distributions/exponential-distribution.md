@@ -11,7 +11,17 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const rate = parametrization === "rate" ? params[0] : 1 / params[0];
+const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
+
+const exponpdf = d3.range(Number.EPSILON, 5, 0.001).map((x) => ({x, pdf: jStat.exponential.pdf(x, rate)}));
+const exponcdf = jStat.exponential.cdf(params[1], rate);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -33,13 +43,9 @@ const params = view(
 );
 ```
 
-```js
-const rate = parametrization === "rate" ? params[0] : 1 / params[0];
-const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
+</div>
 
-const exponpdf = d3.range(Number.EPSILON, 5, 0.001).map((x) => ({x, pdf: jStat.exponential.pdf(x, rate)}));
-const exponcdf = jStat.exponential.cdf(params[1], rate);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -53,6 +59,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

@@ -11,7 +11,30 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const omegasRaw = d3.range(K - 1).map((k) => params[k]);
+const mus = d3.range(K).map((k) => params[(K - 1) + k]);
+const sigmas = d3.range(K).map((k) => params[(K - 1) + K + k]);
+const omegaLast = Math.max(0, 1 - d3.sum(omegasRaw));
+const omegas = omegasRaw.concat([omegaLast]);
+
+const componentColors = [mvcolors[1], mvcolors[3], mvcolors[4], mvcolors[5]];
+
+const xgrid = d3.range(-10, 10, 0.02);
+const components = d3.range(K).map((k) => xgrid.map((x) => ({x, dens: jStat.normal.pdf(x, mus[k], sigmas[k])})));
+const mixture = xgrid.map((x, i) => ({
+  x,
+  dens: d3.sum(d3.range(K).map((k) => omegas[k] * components[k][i].dens))
+}));
+
+const mixturecdf = d3.sum(d3.range(K).map((k) => omegas[k] * jStat.normal.cdf(quantile, mus[k], sigmas[k])));
+const mixMean = d3.sum(d3.range(K).map((k) => omegas[k] * mus[k]));
+const mixVar = d3.sum(d3.range(K).map((k) => omegas[k] * (sigmas[k] ** 2 + mus[k] ** 2))) - mixMean ** 2;
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -62,26 +85,9 @@ const params = view(
 const quantile = view(Inputs.range([-10, 10], {value: -4, step: 0.1, label: "quantile"}));
 ```
 
-```js
-const omegasRaw = d3.range(K - 1).map((k) => params[k]);
-const mus = d3.range(K).map((k) => params[(K - 1) + k]);
-const sigmas = d3.range(K).map((k) => params[(K - 1) + K + k]);
-const omegaLast = Math.max(0, 1 - d3.sum(omegasRaw));
-const omegas = omegasRaw.concat([omegaLast]);
+</div>
 
-const componentColors = [mvcolors[1], mvcolors[3], mvcolors[4], mvcolors[5]];
-
-const xgrid = d3.range(-10, 10, 0.02);
-const components = d3.range(K).map((k) => xgrid.map((x) => ({x, dens: jStat.normal.pdf(x, mus[k], sigmas[k])})));
-const mixture = xgrid.map((x, i) => ({
-  x,
-  dens: d3.sum(d3.range(K).map((k) => omegas[k] * components[k][i].dens))
-}));
-
-const mixturecdf = d3.sum(d3.range(K).map((k) => omegas[k] * jStat.normal.cdf(quantile, mus[k], sigmas[k])));
-const mixMean = d3.sum(d3.range(K).map((k) => omegas[k] * mus[k]));
-const mixVar = d3.sum(d3.range(K).map((k) => omegas[k] * (sigmas[k] ** 2 + mus[k] ** 2))) - mixMean ** 2;
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -96,6 +102,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

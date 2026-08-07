@@ -11,7 +11,20 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [alpha, beta] = params;
+const jstatScale = parametrization === "rate" ? 1 / beta : beta;
+const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
+
+const pdfvals = d3.range(0, 10, 0.01).map((x) => ({x, pdf: jStat.gamma.pdf(x, alpha, jstatScale)}));
+const cdf = jStat.gamma.cdf(params[2], alpha, jstatScale);
+const mean = parametrization === "rate" ? alpha / beta : alpha * beta;
+const variance = parametrization === "rate" ? alpha / beta ** 2 : alpha * beta ** 2;
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -35,16 +48,9 @@ const params = view(
 );
 ```
 
-```js
-const [alpha, beta] = params;
-const jstatScale = parametrization === "rate" ? 1 / beta : beta;
-const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
+</div>
 
-const pdfvals = d3.range(0, 10, 0.01).map((x) => ({x, pdf: jStat.gamma.pdf(x, alpha, jstatScale)}));
-const cdf = jStat.gamma.cdf(params[2], alpha, jstatScale);
-const mean = parametrization === "rate" ? alpha / beta : alpha * beta;
-const variance = parametrization === "rate" ? alpha / beta ** 2 : alpha * beta ** 2;
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -58,6 +64,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

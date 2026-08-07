@@ -11,20 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-1, 1], {label: "μ₁", step: 0.1, value: 0}),
-  Inputs.range([-1, 1], {label: "μ₂", step: 0.1, value: 0}),
-  Inputs.range([0.1, 2], {label: "σ₁", step: 0.1, value: 1}),
-  Inputs.range([0.1, 2], {label: "σ₂", step: 0.1, value: 1}),
-  Inputs.range([-0.99, 0.99], {label: "ρ", step: 0.01, value: 0})
-]));
-```
-
 ```js
 function multiLogitNormalPdf(x, mu, Sigma) {
   const p = mu.length;
@@ -55,6 +41,26 @@ for (let i = 1; i < resolution; i++) {
 const maxpdf = d3.max(grid, (d) => d.pdf);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-1, 1], {label: "μ₁", step: 0.1, value: 0}),
+  Inputs.range([-1, 1], {label: "μ₂", step: 0.1, value: 0}),
+  Inputs.range([0.1, 2], {label: "σ₁", step: 0.1, value: 1}),
+  Inputs.range([0.1, 2], {label: "σ₂", step: 0.1, value: 1}),
+  Inputs.range([-0.99, 0.99], {label: "ρ", step: 0.01, value: 0})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(500, width),
@@ -70,6 +76,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

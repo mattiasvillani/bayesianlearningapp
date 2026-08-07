@@ -60,7 +60,7 @@
   margin: 1rem 0;
   align-items: stretch;
 }
-.dist-layout--conjugate {
+.dist-layout--wide {
   grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
 }
 .dist-layout > .card,

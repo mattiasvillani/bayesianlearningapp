@@ -10,18 +10,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-1, 5], {value: 2, step: 0.1, label: "μ"}),
-  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "β"}),
-  Inputs.range([-10, 10], {value: 2, step: 0.01, label: "quantile"})
-]));
-```
-
 ```js
 const EULER_MASCHERONI = 0.5772156649015329;
 const [mu, beta, quantile] = params;
@@ -41,6 +29,24 @@ const pdfdata = d3.range(mu - 4 * beta, mu + 8 * beta, 0.01).map((x) => ({x, pdf
 const cdfval = cdfgumbel(quantile);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-1, 5], {value: 2, step: 0.1, label: "μ"}),
+  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "β"}),
+  Inputs.range([-10, 10], {value: 2, step: 0.01, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -53,6 +59,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

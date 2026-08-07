@@ -11,7 +11,19 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const r = params[0];
+const p = parametrization === "standard" ? params[1] : r / (params[1] + r);
+const mean = r * (1 - p) / p;
+const variance = r * (1 - p) / (p ** 2);
+const xgrid = d3.range(0, mean + 4 * Math.sqrt(variance) + 1, 1);
+const negbinpdf = xgrid.map((x) => ({x, pdf: jStat.negbin.pdf(x, r, p), pdfpois: jStat.poisson.pdf(x, mean)}));
+const negbincdf = jStat.negbin.cdf(params[2], r, p);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -39,15 +51,9 @@ const params = view(
 const plotpois = view(Inputs.toggle({label: "plot Poisson(μ) overlay", value: false}));
 ```
 
-```js
-const r = params[0];
-const p = parametrization === "standard" ? params[1] : r / (params[1] + r);
-const mean = r * (1 - p) / p;
-const variance = r * (1 - p) / (p ** 2);
-const xgrid = d3.range(0, mean + 4 * Math.sqrt(variance) + 1, 1);
-const negbinpdf = xgrid.map((x) => ({x, pdf: jStat.negbin.pdf(x, r, p), pdfpois: jStat.poisson.pdf(x, mean)}));
-const negbincdf = jStat.negbin.cdf(params[2], r, p);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -68,6 +74,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

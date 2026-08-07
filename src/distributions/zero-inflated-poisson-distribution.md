@@ -11,7 +11,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const pi = params[0], lambda = params[1], quantile = params[2];
+const mean = (1 - pi) * lambda;
+const variance = lambda * (1 - pi) * (1 + pi * lambda);
+const zipoispdf = d3.range(0, lambda + 4 * Math.sqrt(lambda) + 1, 1)
+  .map((x) => ({x, pdf: pi * (x === 0) + (1 - pi) * jStat.poisson.pdf(x, lambda)}));
+const zipoiscdf = pi + (1 - pi) * jStat.poisson.cdf(quantile, lambda);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -23,14 +34,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const pi = params[0], lambda = params[1], quantile = params[2];
-const mean = (1 - pi) * lambda;
-const variance = lambda * (1 - pi) * (1 + pi * lambda);
-const zipoispdf = d3.range(0, lambda + 4 * Math.sqrt(lambda) + 1, 1)
-  .map((x) => ({x, pdf: pi * (x === 0) + (1 - pi) * jStat.poisson.pdf(x, lambda)}));
-const zipoiscdf = pi + (1 - pi) * jStat.poisson.cdf(quantile, lambda);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -49,6 +55,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

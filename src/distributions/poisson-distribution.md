@@ -11,7 +11,15 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const poispdf = d3.range(0, params[0] + 4 * Math.sqrt(params[0]), 1)
+  .map((x) => ({x, pdf: jStat.poisson.pdf(x, params[0])}));
+const poiscdf = jStat.poisson.cdf(params[1], params[0]);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -22,11 +30,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const poispdf = d3.range(0, params[0] + 4 * Math.sqrt(params[0]), 1)
-  .map((x) => ({x, pdf: jStat.poisson.pdf(x, params[0])}));
-const poiscdf = jStat.poisson.cdf(params[1], params[0]);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -45,6 +51,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

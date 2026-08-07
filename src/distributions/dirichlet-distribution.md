@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₁"}),
-  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₂"}),
-  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₃"})
-]));
-```
-
 ```js
 function logBeta(alpha) {
   return alpha.reduce((s, a) => s + math.lgamma(a), 0) - math.lgamma(alpha.reduce((s, a) => s + a, 0));
@@ -49,6 +37,24 @@ for (let i = 1; i < resolution; i++) {
 const maxpdf = d3.max(grid, (d) => d.pdf);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₁"}),
+  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₂"}),
+  Inputs.range([0.01, 15], {value: 1.5, step: 0.01, label: "α₃"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(500, width),
@@ -64,6 +70,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

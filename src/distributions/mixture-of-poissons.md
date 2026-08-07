@@ -11,7 +11,45 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const quantile = quantform[0];
+const showquantile = quantform[1];
+
+const omegas = new Array(K);
+const mus = new Array(K);
+if (K === 1) {
+  omegas[0] = 1;
+  mus[0] = params[0];
+} else {
+  for (let k = 0; k < K - 1; k++) {
+    omegas[k] = params[k];
+    mus[k] = params[(K - 1) + k];
+  }
+  omegas[K - 1] = Math.max(0, 1 - d3.sum(omegas.slice(0, K - 1)));
+  mus[K - 1] = params[(K - 2) + K];
+}
+
+const xgrid = d3.range(0, 16, 1);
+let pdfs = [];
+let mixturepdf = new Array(xgrid.length).fill(0);
+for (let k = 0; k < K; k++) {
+  const comp = xgrid.map((x) => ({x, dens: jStat.poisson.pdf(x, mus[k]), comp: `comp ${k + 1}`}));
+  pdfs = pdfs.concat(comp);
+  mixturepdf = mixturepdf.map((v, idx) => v + omegas[k] * comp[idx].dens);
+}
+pdfs = pdfs.concat(xgrid.map((x, idx) => ({x, dens: mixturepdf[idx], comp: "mixture"})));
+
+const mean = d3.sum(mus.map((mu, k) => mu * omegas[k]));
+const variance = d3.sum(mus.map((mu, k) => omegas[k] * mu * (1 + mu))) - mean ** 2;
+const mixturecdf = d3.sum(mus.map((mu, k) => omegas[k] * jStat.poisson.cdf(quantile, mu)));
+
+const legendarray = ["mixture"].concat(d3.range(K).map((k) => `comp ${k + 1}`));
+const colorrange = [mvcolors[0], mvcolors[1], mvcolors[3], mvcolors[4], mvcolors[6]].slice(0, K + 1);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -58,41 +96,9 @@ const quantform = view(Inputs.form([
 ]));
 ```
 
-```js
-const quantile = quantform[0];
-const showquantile = quantform[1];
+</div>
 
-const omegas = new Array(K);
-const mus = new Array(K);
-if (K === 1) {
-  omegas[0] = 1;
-  mus[0] = params[0];
-} else {
-  for (let k = 0; k < K - 1; k++) {
-    omegas[k] = params[k];
-    mus[k] = params[(K - 1) + k];
-  }
-  omegas[K - 1] = Math.max(0, 1 - d3.sum(omegas.slice(0, K - 1)));
-  mus[K - 1] = params[(K - 2) + K];
-}
-
-const xgrid = d3.range(0, 16, 1);
-let pdfs = [];
-let mixturepdf = new Array(xgrid.length).fill(0);
-for (let k = 0; k < K; k++) {
-  const comp = xgrid.map((x) => ({x, dens: jStat.poisson.pdf(x, mus[k]), comp: `comp ${k + 1}`}));
-  pdfs = pdfs.concat(comp);
-  mixturepdf = mixturepdf.map((v, idx) => v + omegas[k] * comp[idx].dens);
-}
-pdfs = pdfs.concat(xgrid.map((x, idx) => ({x, dens: mixturepdf[idx], comp: "mixture"})));
-
-const mean = d3.sum(mus.map((mu, k) => mu * omegas[k]));
-const variance = d3.sum(mus.map((mu, k) => omegas[k] * mu * (1 + mu))) - mean ** 2;
-const mixturecdf = d3.sum(mus.map((mu, k) => omegas[k] * jStat.poisson.cdf(quantile, mu)));
-
-const legendarray = ["mixture"].concat(d3.range(K).map((k) => `comp ${k + 1}`));
-const colorrange = [mvcolors[0], mvcolors[1], mvcolors[3], mvcolors[4], mvcolors[6]].slice(0, K + 1);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -109,6 +115,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

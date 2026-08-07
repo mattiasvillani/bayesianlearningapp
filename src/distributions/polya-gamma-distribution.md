@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([1, 10], {value: 1, step: 1, label: "b"}),
-  Inputs.range([0, 10], {value: 1, step: 0.1, label: "c"}),
-  Inputs.range([0, 5], {value: 0.2, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 const gridsize = 0.001;
 const TRUNC = 0.64;
@@ -81,6 +69,24 @@ const pdfdata = d3.range(Number.EPSILON, 3, gridsize).map((x) => ({x, pdf: pgpdf
 const cdf = d3.sum(pdfdata.filter((d) => d.x <= params[2]).map((d) => d.pdf)) * gridsize;
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([1, 10], {value: 1, step: 1, label: "b"}),
+  Inputs.range([0, 10], {value: 1, step: 0.1, label: "c"}),
+  Inputs.range([0, 5], {value: 0.2, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -93,6 +99,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

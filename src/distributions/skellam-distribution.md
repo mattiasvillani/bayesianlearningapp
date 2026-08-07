@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.01, 5], {value: 2, step: 0.1, label: "μ1"}),
-  Inputs.range([0.01, 5], {value: 1, step: 0.1, label: "μ2"}),
-  Inputs.range([-10, 10], {value: -2, step: 1, label: "quantile"})
-]));
-```
-
 ```js
 function skellampdf(x, mu1, mu2) {
   return Math.exp(-(mu1 + mu2)) * (mu1 / mu2) ** (x / 2) * bessel.besseli(2 * Math.sqrt(mu1 * mu2), Math.abs(x));
@@ -35,6 +23,24 @@ const pdfdata = d3.range(Math.floor(mean - 6 * Math.sqrt(variance)), Math.floor(
   .map((x) => ({x, pdf: skellampdf(x, mu1, mu2)}));
 const cdf = d3.sum(pdfdata.filter((d) => d.x <= quantile).map((d) => d.pdf));
 ```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.01, 5], {value: 2, step: 0.1, label: "μ1"}),
+  Inputs.range([0.01, 5], {value: 1, step: 0.1, label: "μ2"}),
+  Inputs.range([-10, 10], {value: -2, step: 1, label: "quantile"})
+]));
+```
+
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -53,6 +59,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

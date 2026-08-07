@@ -11,7 +11,15 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const fpdf = d3.range(0.01, jStat.centralF.inv(0.99, params[0], params[1]), 0.01)
+  .map((x) => ({x, pdf: jStat.centralF.pdf(x, params[0], params[1])}));
+const fcdf = jStat.centralF.cdf(params[2], params[0], params[1]);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -23,11 +31,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const fpdf = d3.range(0.01, jStat.centralF.inv(0.99, params[0], params[1]), 0.01)
-  .map((x) => ({x, pdf: jStat.centralF.pdf(x, params[0], params[1])}));
-const fcdf = jStat.centralF.cdf(params[2], params[0], params[1]);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -41,6 +47,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

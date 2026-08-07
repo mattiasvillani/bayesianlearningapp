@@ -11,7 +11,21 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+function betabinomPDF(x, n, alpha, beta) {
+  return jStat.combination(n, x) * jStat.betafn(x + alpha, n - x + beta) / jStat.betafn(alpha, beta);
+}
+
+const n = params[0], alpha = params[1], beta = params[2];
+const pdfdata = d3.range(0, n + 1, 1).map((x) => ({x, pdf: betabinomPDF(x, n, alpha, beta)}));
+const mean = n * alpha / (alpha + beta);
+const variance = n * alpha * beta * (alpha + beta + n) / ((alpha + beta) ** 2 * (alpha + beta + 1));
+const cdf = d3.sum(pdfdata.filter((d) => d.x <= quantile).map((d) => d.pdf));
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -27,17 +41,9 @@ const params = view(Inputs.form([
 const quantile = view(Inputs.range([1, params[0]], {value: 3, step: 1, label: "quantile"}));
 ```
 
-```js
-function betabinomPDF(x, n, alpha, beta) {
-  return jStat.combination(n, x) * jStat.betafn(x + alpha, n - x + beta) / jStat.betafn(alpha, beta);
-}
+</div>
 
-const n = params[0], alpha = params[1], beta = params[2];
-const pdfdata = d3.range(0, n + 1, 1).map((x) => ({x, pdf: betabinomPDF(x, n, alpha, beta)}));
-const mean = n * alpha / (alpha + beta);
-const variance = n * alpha * beta * (alpha + beta + n) / ((alpha + beta) ** 2 * (alpha + beta + 1));
-const cdf = d3.sum(pdfdata.filter((d) => d.x <= quantile).map((d) => d.pdf));
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -56,6 +62,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

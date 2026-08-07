@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "μ"}),
-  Inputs.range([0, 5], {value: 1, step: 0.01, label: "σ"}),
-  Inputs.range([0, 1], {value: 0.5, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 function logit(x) {
   return Math.log(x / (1 - x));
@@ -41,6 +29,24 @@ const pdfdata = d3.range(0.001, 1, 0.001).map((x) => ({x, pdf: jStat.normal.pdf(
 const cdf = jStat.normal.cdf(logit(quantile), mu, sigma);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "μ"}),
+  Inputs.range([0, 5], {value: 1, step: 0.01, label: "σ"}),
+  Inputs.range([0, 1], {value: 0.5, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -54,6 +60,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

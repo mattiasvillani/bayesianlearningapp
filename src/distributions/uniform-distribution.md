@@ -11,7 +11,16 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [a, b, quantile] = params;
+
+const unifpdf = d3.range(-5.1, 5.1, 0.001).map((x) => ({x, pdf: jStat.uniform.pdf(x, a, b)}));
+const unifcdf = jStat.uniform.cdf(quantile, a, b);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -23,12 +32,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const [a, b, quantile] = params;
+</div>
 
-const unifpdf = d3.range(-5.1, 5.1, 0.001).map((x) => ({x, pdf: jStat.uniform.pdf(x, a, b)}));
-const unifcdf = jStat.uniform.cdf(quantile, a, b);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -42,6 +48,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

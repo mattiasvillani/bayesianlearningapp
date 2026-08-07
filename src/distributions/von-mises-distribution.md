@@ -11,18 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "mean, μ"}),
-  Inputs.range([0, 100], {value: 2, step: 1, label: "concentration, κ"}),
-  Inputs.range([-3, 3], {value: -0.5, step: 0.001, label: "Quantile:"})
-]));
-```
-
 ```js
 function vonMisesPdf(x, mu, kappa) {
   return Math.exp(kappa * Math.cos(x - mu)) / (2 * Math.PI * bessel.besseli(kappa, 0));
@@ -38,6 +26,24 @@ const mean = mu;
 const variance = 1 - bessel.besseli(kappa, 1) / bessel.besseli(kappa, 0);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([-5, 5], {value: 0, step: 0.1, label: "mean, μ"}),
+  Inputs.range([0, 100], {value: 2, step: 1, label: "concentration, κ"}),
+  Inputs.range([-3, 3], {value: -0.5, step: 0.001, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -50,6 +56,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

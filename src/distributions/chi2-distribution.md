@@ -11,7 +11,15 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const chisquarepdf = d3.range(0.01, params[0] + 5 * Math.sqrt(2 * params[0]), 0.01)
+  .map((x) => ({x, pdf: jStat.chisquare.pdf(x, params[0])}));
+const chisquarecdf = jStat.chisquare.cdf(params[1], params[0]);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -22,11 +30,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const chisquarepdf = d3.range(0.01, params[0] + 5 * Math.sqrt(2 * params[0]), 0.01)
-  .map((x) => ({x, pdf: jStat.chisquare.pdf(x, params[0])}));
-const chisquarecdf = jStat.chisquare.cdf(params[1], params[0]);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -40,6 +46,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

@@ -11,19 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.01, 5], {value: 3, step: 0.01, label: "α"}),
-  Inputs.range([0.01, 5], {value: 2, step: 0.01, label: "β"}),
-  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "κ"}),
-  Inputs.range([0, 15], {value: 2, step: 0.01, label: "Quantile:"})
-]));
-```
-
 ```js
 function pdfcompoundgamma(x, alpha, beta, kappa) {
   const normconst = (beta ** alpha / math.gamma(alpha)) * (math.gamma(alpha + kappa) / math.gamma(kappa));
@@ -39,6 +26,25 @@ const variance = params[1] ** 2 * ((params[2] ** 2 + params[2] * (params[0] - 1)
 const cdf = d3.sum(pdfdata.filter((d) => d.x <= params[3]).map((d) => d.pdf * stepsize));
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.01, 5], {value: 3, step: 0.01, label: "α"}),
+  Inputs.range([0.01, 5], {value: 2, step: 0.01, label: "β"}),
+  Inputs.range([0.01, 5], {value: 1, step: 0.01, label: "κ"}),
+  Inputs.range([0, 15], {value: 2, step: 0.01, label: "Quantile:"})
+]));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   x: {label: "x", axis: true},
@@ -50,6 +56,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

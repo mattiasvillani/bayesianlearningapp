@@ -11,7 +11,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const n = params[0], p = params[1];
+const mean = n * p, variance = n * p * (1 - p);
+const xgrid = d3.range(0, n + 1, 1);
+const binompdf = xgrid.map((x) => ({x, pdf: jStat.binomial.pdf(x, n, p)}));
+const normalapproxpdf = xgrid.map((x) => ({x, pdf: jStat.normal.pdf(x, mean, Math.sqrt(variance))}));
+const binomcdf = jStat.binomial.cdf(quantile, n, p);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -30,14 +41,9 @@ const quantile = view(Inputs.range([1, params[0]], {value: 3, step: 1, label: "q
 const approx = view(Inputs.toggle({label: "show normal approximation", value: false}));
 ```
 
-```js
-const n = params[0], p = params[1];
-const mean = n * p, variance = n * p * (1 - p);
-const xgrid = d3.range(0, n + 1, 1);
-const binompdf = xgrid.map((x) => ({x, pdf: jStat.binomial.pdf(x, n, p)}));
-const normalapproxpdf = xgrid.map((x) => ({x, pdf: jStat.normal.pdf(x, mean, Math.sqrt(variance))}));
-const binomcdf = jStat.binomial.cdf(quantile, n, p);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -57,6 +63,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

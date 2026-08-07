@@ -11,24 +11,6 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
-
-<div class="card">
-
-```js
-const params = view(Inputs.form([
-  Inputs.range([0.1, 100], {value: 0.5, step: 0.1, label: "α"}),
-  Inputs.range([0.1, 100], {value: 0.5, step: 0.1, label: "β"}),
-  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "μ"}),
-  Inputs.range([0.1, 10], {value: 1, step: 0.01, label: "σ"}),
-  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
-]));
-```
-
-```js
-const shownormal = view(Inputs.toggle({value: true, label: "show closest normal"}));
-```
-
 ```js
 // digamma and trigamma via standard asymptotic-series approximations (jStat has no special function for these)
 function digamma(x) {
@@ -62,6 +44,30 @@ const normpdfdata = xgrid.map((x) => ({x, pdf: jStat.normal.pdf(x, Zmean, Math.s
 const zcdfval = zcdf(quantile, alpha, beta, mu, sigma);
 ```
 
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const params = view(Inputs.form([
+  Inputs.range([0.1, 100], {value: 0.5, step: 0.1, label: "α"}),
+  Inputs.range([0.1, 100], {value: 0.5, step: 0.1, label: "β"}),
+  Inputs.range([-10, 10], {value: 0, step: 0.1, label: "μ"}),
+  Inputs.range([0.1, 10], {value: 1, step: 0.01, label: "σ"}),
+  Inputs.range([-10, 10], {value: -1.96, step: 0.01, label: "quantile"})
+]));
+```
+
+```js
+const shownormal = view(Inputs.toggle({value: true, label: "show closest normal"}));
+```
+
+</div>
+
+<div class="card">
+
 ```js
 Plot.plot({
   width: Math.min(720, width),
@@ -77,6 +83,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

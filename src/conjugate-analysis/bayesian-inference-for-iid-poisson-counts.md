@@ -43,7 +43,7 @@ const dd = densdata({n, xbar, alpha, beta});
 const maxpdf = d3.max(dd, (d) => d.pdf);
 ```
 
-<div class="dist-layout dist-layout--conjugate">
+<div class="dist-layout dist-layout--wide">
 
 <div class="dist-main">
 

@@ -11,7 +11,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const p = params[0], quantile = params[1];
+const mean = (1 - p) / p;
+const variance = (1 - p) / p ** 2;
+const geompdf = d3.range(0, mean + 4 * Math.sqrt(variance) + 1, 1)
+  .map((x) => ({x, pdf: jStat.negbin.pdf(x, 1, p)}));
+const geomcdf = jStat.negbin.cdf(quantile, 1, p);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -22,14 +33,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const p = params[0], quantile = params[1];
-const mean = (1 - p) / p;
-const variance = (1 - p) / p ** 2;
-const geompdf = d3.range(0, mean + 4 * Math.sqrt(variance) + 1, 1)
-  .map((x) => ({x, pdf: jStat.negbin.pdf(x, 1, p)}));
-const geomcdf = jStat.negbin.cdf(quantile, 1, p);
-```
+</div>
+
+<div class="card">
 
 ```js
 Plot.plot({
@@ -48,6 +54,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

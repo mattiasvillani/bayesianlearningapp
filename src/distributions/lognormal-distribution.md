@@ -11,7 +11,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [mu, sigma] = params;
+const mean = Math.exp(mu + 0.5 * sigma ** 2);
+const variance = (Math.exp(sigma ** 2) - 1) * Math.exp(2 * mu + sigma ** 2);
+
+const lognormalpdf = d3.range(0.01, 10, 0.01).map((x) => ({x, pdf: jStat.lognormal.pdf(x, mu, sigma)}));
+const lognormalcdf = jStat.lognormal.cdf(params[2], mu, sigma);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -23,14 +34,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const [mu, sigma] = params;
-const mean = Math.exp(mu + 0.5 * sigma ** 2);
-const variance = (Math.exp(sigma ** 2) - 1) * Math.exp(2 * mu + sigma ** 2);
+</div>
 
-const lognormalpdf = d3.range(0.01, 10, 0.01).map((x) => ({x, pdf: jStat.lognormal.pdf(x, mu, sigma)}));
-const lognormalcdf = jStat.lognormal.cdf(params[2], mu, sigma);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -44,6 +50,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 

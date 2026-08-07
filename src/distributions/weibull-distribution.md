@@ -12,7 +12,18 @@ import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 ```
 
-<div class="dist-layout">
+```js
+const [lambda, k] = params;
+const mean = lambda * math.gamma(1 + 1 / k);
+const variance = lambda ** 2 * (math.gamma(1 + 2 / k) - math.gamma(1 + 1 / k) ** 2);
+
+const pdf = d3.range(0.01, 10, 0.01).map((x) => ({x, pdf: jStat.weibull.pdf(x, lambda, k)}));
+const cdf = jStat.weibull.cdf(params[2], lambda, k);
+```
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
 
 <div class="card">
 
@@ -24,14 +35,9 @@ const params = view(Inputs.form([
 ]));
 ```
 
-```js
-const [lambda, k] = params;
-const mean = lambda * math.gamma(1 + 1 / k);
-const variance = lambda ** 2 * (math.gamma(1 + 2 / k) - math.gamma(1 + 1 / k) ** 2);
+</div>
 
-const pdf = d3.range(0.01, 10, 0.01).map((x) => ({x, pdf: jStat.weibull.pdf(x, lambda, k)}));
-const cdf = jStat.weibull.cdf(params[2], lambda, k);
-```
+<div class="card">
 
 ```js
 Plot.plot({
@@ -45,6 +51,8 @@ Plot.plot({
   ]
 })
 ```
+
+</div>
 
 </div>
 
