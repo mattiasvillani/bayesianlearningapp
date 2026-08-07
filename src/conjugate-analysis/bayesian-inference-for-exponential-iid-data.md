@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -36,11 +37,15 @@ function densdata({n, xbar, alpha, beta}) {
   const priorpdf = thetas.map((theta) => ({theta, pdf: jStat.gamma.pdf(theta, alpha, 1 / beta), type: "prior"}));
   const likepdf = thetas.map((theta) => ({theta, pdf: jStat.gamma.pdf(theta, n, 1 / (n * xbar)), type: "likelihood"}));
   const postpdf = thetas.map((theta) => ({theta, pdf: jStat.gamma.pdf(theta, alpha + n, 1 / (beta + n * xbar)), type: "posterior"}));
-  return priorpdf.concat(likepdf, postpdf);
+  return {data: priorpdf.concat(likepdf, postpdf), xlimlow, xlimhigh};
 }
 
-const dd = densdata({n, xbar, alpha, beta});
+const {data: dd, xlimlow, xlimhigh} = densdata({n, xbar, alpha, beta});
 const maxpdf = d3.max(dd, (d) => d.pdf);
+```
+
+```js
+const frozenState = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -76,7 +81,16 @@ const priorsettings = view(priorInput);
   </div>
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenState, freezeAxis, [xlimlow, xlimhigh]);
+```
 
 ```js
 Plot.plot({
@@ -86,7 +100,7 @@ Plot.plot({
     domain: ["prior", "likelihood", "posterior"],
     range: [mvcolors[1], mvcolors[0], mvcolors[2]]
   },
-  x: {label: "λ"},
+  x: {label: "λ", domain: xDomain},
   y: {axis: false, domain: [0, 1.02 * maxpdf]},
   marks: [
     Plot.ruleY([0]),
@@ -94,6 +108,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 
@@ -116,12 +132,12 @@ ${tex`\lambda \mid x_1,\ldots,x_n \sim \operatorname{Gamma}(\alpha+n,\, \beta+n\
 
 <div class="card">
 
-### Prior and Posterior moments
+### Summary
 
 |  | Prior | Posterior |
 |---|---|---|
 | Mean | ${(alpha / beta).toPrecision(3)} | ${((alpha + n) / (beta + n * xbar)).toPrecision(3)} |
-| St. dev | ${Math.sqrt(alpha / beta ** 2).toPrecision(3)} | ${Math.sqrt((alpha + n) / (beta + n * xbar) ** 2).toPrecision(3)} |
+| Standard deviation | ${Math.sqrt(alpha / beta ** 2).toPrecision(3)} | ${Math.sqrt((alpha + n) / (beta + n * xbar) ** 2).toPrecision(3)} |
 
 </div>
 

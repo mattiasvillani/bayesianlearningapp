@@ -1,6 +1,17 @@
 @import url("observablehq:default.css");
 
 /*
+ * Framework's default sidebar padding-left is
+ * calc(max(0rem, (100vw - max-width) / 2)) — it aligns the sidebar's nav
+ * text with the centered main-content column, but on wide screens that
+ * pushes nav items far from the edge, reading as a big empty gap. Pin it
+ * to a small fixed value instead.
+ */
+#observablehq-sidebar {
+  --observablehq-sidebar-padding-left: 1rem;
+}
+
+/*
  * Theme variables, normally supplied by Framework's automatic
  * "observablehq:theme-*.css" imports — inlined here (values copied verbatim
  * from theme-air.css / theme-near-midnight.css + abstract-light.css /
@@ -21,6 +32,18 @@
   --theme-foreground-fainter: color-mix(in srgb, var(--theme-foreground) 30%, var(--theme-background-a));
   --theme-foreground-faintest: color-mix(in srgb, var(--theme-foreground) 14%, var(--theme-background-a));
   color-scheme: light;
+
+  /* mvcolors palette: only colors that need a different shade per theme are overridden below. */
+  --mv-color-0: #6C8EBF;
+  --mv-color-1: #c0a34d;
+  --mv-color-2: #780000;
+  --mv-color-3: #007878;
+  --mv-color-4: #bf9d6c;
+  --mv-color-5: #3A6B35;
+  --mv-color-6: #b5c6df;
+  --mv-color-7: #eadaaa;
+  --mv-color-8: #bb989a;
+  --mv-color-9: #98bbb9;
 }
 @media (prefers-color-scheme: dark) {
   :root:where(:not([data-theme="light"])) {
@@ -36,6 +59,7 @@
     --theme-foreground-fainter: color-mix(in srgb, var(--theme-foreground) 30%, var(--theme-background-b));
     --theme-foreground-faintest: color-mix(in srgb, var(--theme-foreground) 14%, var(--theme-background-b));
     color-scheme: dark;
+    --mv-color-2: #B85450;
   }
 }
 :root[data-theme="dark"] {
@@ -51,6 +75,18 @@
   --theme-foreground-fainter: color-mix(in srgb, var(--theme-foreground) 30%, var(--theme-background-b));
   --theme-foreground-faintest: color-mix(in srgb, var(--theme-foreground) 14%, var(--theme-background-b));
   color-scheme: dark;
+  --mv-color-2: #B85450;
+}
+
+#observablehq-footer {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--theme-foreground-fainter);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
 }
 
 .dist-layout {
@@ -83,6 +119,9 @@
   background: color-mix(in srgb, var(--theme-foreground) 5%, var(--theme-background));
   border: 1.5px solid color-mix(in srgb, var(--theme-foreground) 30%, transparent);
   box-shadow: 0 2px 8px color-mix(in srgb, var(--theme-foreground) 18%, transparent);
+}
+.dist-layout .observablehq--block:empty {
+  margin: 0;
 }
 @media (max-width: 640px) {
   .dist-layout {
@@ -129,11 +168,6 @@
   }
 }
 
-.dist-side > p:has(> .notebook-link) {
-  margin-top: auto;
-  margin-bottom: 0;
-  text-align: right;
-}
 .notebook-link {
   display: inline-flex;
   align-items: center;
@@ -149,4 +183,7 @@
 }
 .notebook-link svg {
   flex: none;
+}
+#observablehq-footer p:has(> .notebook-link) {
+  margin: 0;
 }

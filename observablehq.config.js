@@ -6,12 +6,30 @@ export default {
       open: true,
       pages: [
         {
+          name: "Bernoulli data",
+          path: "/conjugate-analysis/bayesian-inference-for-bernoulli-iid-data"
+        },
+        {
           name: "Poisson data",
           path: "/conjugate-analysis/bayesian-inference-for-iid-poisson-counts"
         },
         {
           name: "Exponential data",
           path: "/conjugate-analysis/bayesian-inference-for-exponential-iid-data"
+        },
+        {
+          name: "Gaussian data (known variance)",
+          path: "/conjugate-analysis/bayesian-inference-for-gaussian-known-variance"
+        }
+      ]
+    },
+    {
+      name: "Data stories",
+      open: false,
+      pages: [
+        {
+          name: "Internet speed data",
+          path: "/data-stories/internet-speed-data"
         }
       ]
     },
@@ -106,10 +124,23 @@ export default {
     localStorage.setItem("mv-theme", next);
   });
 })();
+</script>
+<script>
+(function () {
+  var observer = new MutationObserver(function () {
+    var footer = document.querySelector("#observablehq-footer");
+    var link = document.querySelector("main .notebook-link");
+    if (!footer || !link) return;
+    footer.appendChild(link.closest("p") || link);
+    observer.disconnect();
+  });
+  observer.observe(document.documentElement, {childList: true, subtree: true});
+})();
 </script>`,
-  footer: "Bayesian Learning — companion widgets for the BayesBook textbook.",
+  footer: `An interactive companion to the book <a href="https://mattiasvillani.com/BayesianLearningBook/">Bayesian Learning</a> by Mattias Villani`,
   toc: false,
   sidebar: true,
+  pager: false,
   root: "src",
   style: "styles.css"
 };
