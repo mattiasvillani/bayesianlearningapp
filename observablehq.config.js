@@ -24,6 +24,20 @@ export default {
       ]
     },
     {
+      name: "Likelihood",
+      open: false,
+      pages: [
+        {
+          name: "MLE - Bernoulli data",
+          path: "/likelihood/maximum-likelihood-bernoulli-data"
+        },
+        {
+          name: "MLE - Poisson data",
+          path: "/likelihood/maximum-likelihood-poisson-data"
+        }
+      ]
+    },
+    {
       name: "Data stories",
       open: false,
       pages: [
@@ -137,7 +151,7 @@ export default {
   observer.observe(document.documentElement, {childList: true, subtree: true});
 })();
 </script>`,
-  footer: `An interactive companion to the book <a href="https://mattiasvillani.com/BayesianLearningBook/">Bayesian Learning</a> by Mattias Villani`,
+  footer: `An interactive companion to the book <a href="https://mattiasvillani.com/BayesianLearningBook/">Bayesian Learning</a> by <a href="https://mattiasvillani.com">Mattias Villani</a>`,
   toc: false,
   sidebar: true,
   pager: false,
