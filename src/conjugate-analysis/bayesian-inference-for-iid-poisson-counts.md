@@ -75,7 +75,7 @@ Plot.plot({
   color: {
     legend: true,
     domain: ["prior", "likelihood", "posterior"],
-    range: [mvcolors[1], mvcolors[0], mvcolors[3]]
+    range: [mvcolors[1], mvcolors[0], mvcolors[2]]
   },
   x: {label: "λ"},
   y: {axis: false, domain: [0, 1.02 * maxpdf]},
