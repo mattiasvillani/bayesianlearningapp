@@ -6,90 +6,70 @@ export default {
       open: true,
       pages: [
         {
-          name: "Poisson–Gamma (iid Poisson counts)",
+          name: "Poisson data",
           path: "/conjugate-analysis/bayesian-inference-for-iid-poisson-counts"
+        },
+        {
+          name: "Exponential data",
+          path: "/conjugate-analysis/bayesian-inference-for-exponential-iid-data"
         }
       ]
     },
     {
-      name: "Distributions — Discrete",
+      name: "Distributions",
       open: false,
       pages: [
         {name: "Bernoulli", path: "/distributions/bernoulli-distribution"},
-        {name: "Binomial", path: "/distributions/binomial-distribution"},
-        {name: "Beta-Binomial", path: "/distributions/beta-binomial-distribution"},
-        {name: "Geometric", path: "/distributions/geometric-distribution"},
-        {name: "Hypergeometric", path: "/distributions/hypergeometric-distribution"},
-        {name: "Negative Binomial", path: "/distributions/negative-binomial-distribution"},
-        {name: "Poisson", path: "/distributions/poisson-distribution"},
-        {name: "Poisson-Gamma", path: "/distributions/poisson-gamma-distribution"},
-        {name: "Mixture of Poissons", path: "/distributions/mixture-of-poissons"},
-        {name: "Skellam", path: "/distributions/skellam-distribution"},
-        {name: "Zero-Inflated Poisson", path: "/distributions/zero-inflated-poisson-distribution"},
-        {name: "Zipf", path: "/distributions/zipf-distribution"}
-      ]
-    },
-    {
-      name: "Distributions — Bounded",
-      open: false,
-      pages: [
         {name: "Beta", path: "/distributions/beta-distribution"},
-        {name: "Beta (three-parameter)", path: "/distributions/three-parameter-beta-distribution"},
         {name: "Beta (four-parameter)", path: "/distributions/four-parameter-beta-distribution"},
-        {name: "Kumaraswamy", path: "/distributions/kumaraswamy-distribution"},
-        {name: "Logit-normal", path: "/distributions/logit-normal-distribution"},
-        {name: "Triangular", path: "/distributions/triangular-distribution"},
-        {name: "Uniform", path: "/distributions/uniform-distribution"}
-      ]
-    },
-    {
-      name: "Distributions — Positive/Scale",
-      open: false,
-      pages: [
-        {name: "Gamma", path: "/distributions/gamma-distribution"},
-        {name: "Inverse Gamma", path: "/distributions/inverse-gamma-distribution"},
-        {name: "Exponential", path: "/distributions/exponential-distribution"},
-        {name: "Weibull", path: "/distributions/weibull-distribution"},
-        {name: "LogNormal", path: "/distributions/lognormal-distribution"},
-        {name: "Pareto", path: "/distributions/pareto-distribution"},
-        {name: "Chi-squared", path: "/distributions/chi2-distribution"},
-        {name: "Non-central Chi-squared", path: "/distributions/non-central-chi2-distribution"},
-        {name: "Scaled Inverse Chi-squared", path: "/distributions/scaled-inverse-chi-2-distribution"},
-        {name: "Compound-Gamma", path: "/distributions/compound-gamma-distribution"},
-        {name: "F", path: "/distributions/f-distribution"},
-        {name: "Inverse Gaussian", path: "/distributions/inverse-gaussian-distribution"},
-        {name: "Pólya-Gamma", path: "/distributions/polya-gamma-distribution"}
-      ]
-    },
-    {
-      name: "Distributions — Real-valued",
-      open: false,
-      pages: [
-        {name: "Normal (Gaussian)", path: "/distributions/normal-gaussian-distribution"},
-        {name: "Student-t (standard)", path: "/distributions/student-t-distribution-standard"},
-        {name: "Student-t", path: "/distributions/student-t-distribution"},
+        {name: "Beta (three-parameter)", path: "/distributions/three-parameter-beta-distribution"},
+        {name: "Beta-Binomial", path: "/distributions/beta-binomial-distribution"},
+        {name: "Binomial", path: "/distributions/binomial-distribution"},
         {name: "Cauchy", path: "/distributions/cauchy-distribution"},
+        {name: "Chi-squared", path: "/distributions/chi2-distribution"},
+        {name: "Compound-Gamma", path: "/distributions/compound-gamma-distribution"},
+        {name: "Dirichlet", path: "/distributions/dirichlet-distribution"},
+        {name: "Exponential", path: "/distributions/exponential-distribution"},
+        {name: "F", path: "/distributions/f-distribution"},
+        {name: "Fisher Z", path: "/distributions/z-distribution"},
+        {name: "Gamma", path: "/distributions/gamma-distribution"},
+        {name: "Generalized Extreme Value", path: "/distributions/generalized-extreme-value-distribution"},
+        {name: "Geometric", path: "/distributions/geometric-distribution"},
+        {name: "Gumbel", path: "/distributions/gumbel-distribution"},
+        {name: "Gumbel–Softmax", path: "/distributions/gumbel-softmax-distribution"},
+        {name: "Hypergeometric", path: "/distributions/hypergeometric-distribution"},
+        {name: "Inverse Gamma", path: "/distributions/inverse-gamma-distribution"},
+        {name: "Inverse Gaussian", path: "/distributions/inverse-gaussian-distribution"},
+        {name: "Kumaraswamy", path: "/distributions/kumaraswamy-distribution"},
         {name: "Laplace", path: "/distributions/laplace-distribution"},
         {name: "Logistic", path: "/distributions/logistic-distribution"},
+        {name: "Logit-normal", path: "/distributions/logit-normal-distribution"},
+        {name: "LogNormal", path: "/distributions/lognormal-distribution"},
+        {name: "Mixture of Poissons", path: "/distributions/mixture-of-poissons"},
+        {name: "Multivariate logit-normal", path: "/distributions/multivariate-logitnormal-distribution"},
+        {name: "Multivariate Normal", path: "/distributions/multivariate-normal-distribution"},
+        {name: "Negative Binomial", path: "/distributions/negative-binomial-distribution"},
+        {name: "Non-central Chi-squared", path: "/distributions/non-central-chi2-distribution"},
+        {name: "Normal (Gaussian)", path: "/distributions/normal-gaussian-distribution"},
+        {name: "Normal Mixture", path: "/distributions/normal-mixture"},
+        {name: "Pareto", path: "/distributions/pareto-distribution"},
+        {name: "Poisson", path: "/distributions/poisson-distribution"},
+        {name: "Poisson-Gamma", path: "/distributions/poisson-gamma-distribution"},
+        {name: "Pólya-Gamma", path: "/distributions/polya-gamma-distribution"},
+        {name: "Scaled Inverse Chi-squared", path: "/distributions/scaled-inverse-chi-2-distribution"},
+        {name: "Skellam", path: "/distributions/skellam-distribution"},
         {name: "Skew-Normal", path: "/distributions/skew-normal-distribution"},
         {name: "Split-Normal", path: "/distributions/split-normal-distribution"},
         {name: "Split-t", path: "/distributions/split-t-distribution"},
-        {name: "Gumbel", path: "/distributions/gumbel-distribution"},
-        {name: "Generalized Extreme Value", path: "/distributions/generalized-extreme-value-distribution"},
-        {name: "Normal Mixture", path: "/distributions/normal-mixture"},
-        {name: "Fisher Z", path: "/distributions/z-distribution"},
-        {name: "Truncated Normal", path: "/distributions/truncated-normal-distribution"}
-      ]
-    },
-    {
-      name: "Distributions — Multivariate & Circular",
-      open: false,
-      pages: [
-        {name: "Multivariate Normal", path: "/distributions/multivariate-normal-distribution"},
-        {name: "Dirichlet", path: "/distributions/dirichlet-distribution"},
-        {name: "Multivariate logit-normal", path: "/distributions/multivariate-logitnormal-distribution"},
-        {name: "Gumbel–Softmax", path: "/distributions/gumbel-softmax-distribution"},
-        {name: "von Mises", path: "/distributions/von-mises-distribution"}
+        {name: "Student-t", path: "/distributions/student-t-distribution"},
+        {name: "Student-t (standard)", path: "/distributions/student-t-distribution-standard"},
+        {name: "Triangular", path: "/distributions/triangular-distribution"},
+        {name: "Truncated Normal", path: "/distributions/truncated-normal-distribution"},
+        {name: "Uniform", path: "/distributions/uniform-distribution"},
+        {name: "von Mises", path: "/distributions/von-mises-distribution"},
+        {name: "Weibull", path: "/distributions/weibull-distribution"},
+        {name: "Zero-Inflated Poisson", path: "/distributions/zero-inflated-poisson-distribution"},
+        {name: "Zipf", path: "/distributions/zipf-distribution"}
       ]
     }
   ],

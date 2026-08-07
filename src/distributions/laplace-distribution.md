@@ -8,6 +8,7 @@ toc: false
 ```js
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
+import {notebookLink} from "../components/notebookLink.js";
 ```
 
 <div class="dist-layout">
@@ -90,18 +91,7 @@ f(x) &= \frac{1}{2b}\exp\Big(-\frac{|x-\mu|}{b}\Big) \\[0.4em]
 
 </div>
 
-<a class="notebook-link" href="https://observablehq.com/@mattiasvillani/laplace-distribution" target="_blank" rel="noopener noreferrer">
-<svg width="14" height="14" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="2" y="1.5" width="9" height="13" rx="1.2" stroke="currentColor" stroke-width="1.1"/>
-  <line x1="4.2" y1="4.4" x2="8.8" y2="4.4" stroke="currentColor" stroke-width="0.9"/>
-  <line x1="4.2" y1="6.6" x2="8.8" y2="6.6" stroke="currentColor" stroke-width="0.9"/>
-  <line x1="4.2" y1="8.8" x2="7.2" y2="8.8" stroke="currentColor" stroke-width="0.9"/>
-  <circle cx="12.3" cy="12.3" r="2.3" fill="#6C8EBF"/>
-  <circle cx="10.4" cy="13.2" r="1.6" fill="#c0a34d"/>
-  <circle cx="13.5" cy="13.6" r="1.4" fill="#007878"/>
-</svg>
-Original notebook ↗
-</a>
+${notebookLink("https://observablehq.com/@mattiasvillani/laplace-distribution")}
 
 </div>
 

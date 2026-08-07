@@ -55,21 +55,26 @@
 
 .dist-layout {
   display: grid;
-  grid-template-columns: 7fr 3fr;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 3fr);
   gap: 1rem;
   margin: 1rem 0;
   align-items: stretch;
 }
+.dist-layout--conjugate {
+  grid-template-columns: minmax(0, 65fr) minmax(0, 35fr);
+}
 .dist-layout > .card,
+.dist-main,
+.dist-main > .card,
 .dist-side,
 .dist-side > .card {
   margin: 0;
 }
+.dist-main,
 .dist-side {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  height: 100%;
 }
 .dist-side table {
   font-size: 14px;
@@ -124,12 +129,16 @@
   }
 }
 
+.dist-side > p:has(> .notebook-link) {
+  margin-top: auto;
+  margin-bottom: 0;
+  text-align: right;
+}
 .notebook-link {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0 0.25rem;
-  margin-top: auto;
   font: 12px var(--sans-serif);
   color: var(--theme-foreground-muted);
   text-decoration: none;
