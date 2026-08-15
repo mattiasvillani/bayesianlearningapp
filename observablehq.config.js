@@ -38,6 +38,44 @@ export default {
       ]
     },
     {
+      name: "Mathematics",
+      open: false,
+      pages: [
+        {
+          name: "The Exponential Function",
+          path: "/mathematics/exponential-function"
+        },
+        {
+          name: "The Logarithm Function",
+          path: "/mathematics/logarithm-function"
+        },
+        {
+          name: "The Derivative",
+          path: "/mathematics/derivative"
+        },
+        {
+          name: "A Function and Its Derivatives",
+          path: "/mathematics/function-and-derivatives"
+        },
+        {
+          name: "Function Optimization",
+          path: "/mathematics/function-optimization"
+        },
+        {
+          name: "The Taylor Approximation",
+          path: "/mathematics/taylor-approximation"
+        },
+        {
+          name: "The Riemann Integral",
+          path: "/mathematics/riemann-integral"
+        },
+        {
+          name: "Second Derivative and Curvature",
+          path: "/mathematics/curvature"
+        }
+      ]
+    },
+    {
       name: "Data stories",
       open: false,
       pages: [
