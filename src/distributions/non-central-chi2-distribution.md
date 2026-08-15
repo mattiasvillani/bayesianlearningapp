@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -34,11 +35,16 @@ function nccdf(x, terms) {
 const [k, lambda] = params;
 const terms = ncTerms(k, lambda);
 const binsize = 0.005;
-const pdfdata = d3.range(Number.EPSILON, k + lambda + 4 * Math.sqrt(2 * (k + 2 * lambda)), binsize)
+const xDomainDynamic = [Number.EPSILON, k + lambda + 4 * Math.sqrt(2 * (k + 2 * lambda))];
+const pdfdata = d3.range(xDomainDynamic[0], xDomainDynamic[1], binsize)
   .map((x) => ({x, pdf: ncpdf(x, terms)}));
 const mean = k + lambda;
 const sd = Math.sqrt(2 * (k + 2 * lambda));
 const cdf = nccdf(params[2], terms);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -57,11 +63,20 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "f(x)"},
   marks: [
     Plot.ruleY([0]),
@@ -71,6 +86,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

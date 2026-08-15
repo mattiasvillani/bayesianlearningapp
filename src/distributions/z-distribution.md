@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -38,10 +39,17 @@ const [alpha, beta, mu, sigma, quantile] = params;
 const Zmean = mu + sigma * (digamma(alpha) - digamma(beta));
 const Zvar = sigma ** 2 * (trigamma(alpha) + trigamma(beta));
 
-const xgrid = d3.range(-20, 20, 0.02);
+const zsd = Math.sqrt(Zvar);
+const xDomainDynamic = [Zmean - 6 * zsd, Zmean + 6 * zsd];
+const xgrid = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 2000);
 const zpdfdata = xgrid.map((x) => ({x, pdf: zpdf(x, alpha, beta, mu, sigma)}));
-const normpdfdata = xgrid.map((x) => ({x, pdf: jStat.normal.pdf(x, Zmean, Math.sqrt(Zvar))}));
+const normpdfdata = xgrid.map((x) => ({x, pdf: jStat.normal.pdf(x, Zmean, zsd)}));
+const yDomainDynamic = [0, d3.max(zpdfdata, (d) => d.pdf) * 1.1];
 const zcdfval = zcdf(quantile, alpha, beta, mu, sigma);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -66,13 +74,23 @@ const shownormal = view(Inputs.toggle({value: true, label: "show closest normal"
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = yDomainDynamic;
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
-  y: {label: "f(x)", axis: false},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {label: "f(x)", axis: false, domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.line(zpdfdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
@@ -83,6 +101,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

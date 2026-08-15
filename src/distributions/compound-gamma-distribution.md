@@ -9,6 +9,7 @@ toc: false
 import * as math from "npm:mathjs";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -17,13 +18,27 @@ function pdfcompoundgamma(x, alpha, beta, kappa) {
   return normconst * (x ** (kappa - 1)) / ((beta + x) ** (alpha + kappa));
 }
 
-const stepsize = 0.01;
-const pdfdata = d3.range(0, 15, stepsize)
+const coarseStep = 0.02;
+let cum = 0;
+let xUpper = 200;
+for (let xv = coarseStep / 2; xv < 200; xv += coarseStep) {
+  cum += pdfcompoundgamma(xv, params[0], params[1], params[2]) * coarseStep;
+  if (cum >= 0.995) { xUpper = xv; break; }
+}
+const xDomainDynamic = [0, xUpper];
+
+const stepsize = xUpper / 1500;
+const pdfdata = d3.range(0, xUpper, stepsize)
   .map((x) => ({x, pdf: pdfcompoundgamma(x, params[0], params[1], params[2])}));
+const yDomainDynamic = [0, d3.max(pdfdata, (d) => d.pdf) * 1.05];
 
 const mean = params[2] * (params[1] / (params[0] - 1));
 const variance = params[1] ** 2 * ((params[2] ** 2 + params[2] * (params[0] - 1)) / ((params[0] - 2) * (params[0] - 1) ** 2));
 const cdf = d3.sum(pdfdata.filter((d) => d.x <= params[3]).map((d) => d.pdf * stepsize));
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -43,12 +58,22 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = yDomainDynamic;
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true},
-  y: {label: "f(x)"},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {label: "f(x)", domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.line(pdfdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
@@ -56,6 +81,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

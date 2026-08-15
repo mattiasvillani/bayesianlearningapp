@@ -9,10 +9,12 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
-const normpdf = d3.range(-10, 10, 0.01).map((x) => ({x, pdf: jStat.normal.pdf(x, params[0], params[1])}));
+const xDomainDynamic = [params[0] - 6 * params[1], params[0] + 6 * params[1]];
+const normpdf = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 2000).map((x) => ({x, pdf: jStat.normal.pdf(x, params[0], params[1])}));
 const normcdf = jStat.normal.cdf(params[2], params[0], params[1]);
 const maxpdf = jStat.normal.pdf(params[0], params[0], params[1]);
 const textdata = [
@@ -20,6 +22,12 @@ const textdata = [
   {x: params[0] - 1.5 * params[1], y: 0.12 * maxpdf, text: "95%"},
   {x: params[0] - 2.5 * params[1], y: 0.12 * maxpdf, text: "99.7%"}
 ];
+const zoomDomainDynamic = [params[0] - 4 * params[1], params[0] + 4 * params[1]];
+```
+
+```js
+const frozenStateX1 = createFreezeState();
+const frozenStateX2 = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -38,14 +46,24 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain1 = resolveDomain(frozenStateX1, freezeAxis, xDomainDynamic);
+const xDomain2 = resolveDomain(frozenStateX2, freezeAxis, zoomDomainDynamic);
+```
 
 <div class="grid grid-cols-2" style="margin: 0;">
   <div>
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain1},
   y: {axis: false, domain: [0, maxpdf]},
   marks: [
     Plot.ruleY([0]),
@@ -60,7 +78,7 @@ Plot.plot({
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true, domain: [params[0] - 4 * params[1], params[0] + 4 * params[1]]},
+  x: {label: "x", axis: true, domain: xDomain2},
   y: {axis: false, domain: [0, 1.01 * maxpdf]},
   marks: [
     Plot.ruleY([0]),
@@ -86,6 +104,8 @@ Plot.plot({
 
   </div>
 </div>
+
+<div style="margin-top: -0.25rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -38,8 +39,14 @@ const variance = xi === 0 ? ((Math.PI ** 2) / 6) * sigma ** 2
 
 const suppRaw = support();
 const supp = [Math.min(suppRaw[0], suppRaw[1]), Math.max(suppRaw[0], suppRaw[1])];
+const xDomainDynamic = supp;
 const pdfdata = d3.range(supp[0], supp[1], Math.max((supp[1] - supp[0]) / 1000, 1e-6)).map((x) => ({x, pdf: pdfgev(x)}));
+const yDomainDynamic = [0, d3.max(pdfdata, (d) => d.pdf) * 1.05];
 const cdfval = cdfgev(quantile);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -59,13 +66,23 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = yDomainDynamic;
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
-  y: {label: "f(x)", axis: false},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {label: "f(x)", axis: false, domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.line(pdfdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
@@ -73,6 +90,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

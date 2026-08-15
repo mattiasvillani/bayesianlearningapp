@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -20,7 +21,11 @@ const omegas = omegasRaw.concat([omegaLast]);
 
 const componentColors = [mvcolors[1], mvcolors[3], mvcolors[4], mvcolors[5]];
 
-const xgrid = d3.range(-10, 10, 0.02);
+const xDomainDynamic = [
+  d3.min(d3.range(K), (k) => mus[k] - 5 * sigmas[k]),
+  d3.max(d3.range(K), (k) => mus[k] + 5 * sigmas[k])
+];
+const xgrid = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 2000);
 const components = d3.range(K).map((k) => xgrid.map((x) => ({x, dens: jStat.normal.pdf(x, mus[k], sigmas[k])})));
 const mixture = xgrid.map((x, i) => ({
   x,
@@ -30,6 +35,10 @@ const mixture = xgrid.map((x, i) => ({
 const mixturecdf = d3.sum(d3.range(K).map((k) => omegas[k] * jStat.normal.cdf(quantile, mus[k], sigmas[k])));
 const mixMean = d3.sum(d3.range(K).map((k) => omegas[k] * mus[k]));
 const mixVar = d3.sum(d3.range(K).map((k) => omegas[k] * (sigmas[k] ** 2 + mus[k] ** 2))) - mixMean ** 2;
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -87,12 +96,21 @@ const quantile = view(Inputs.range([-10, 10], {value: -4, step: 0.1, label: "qua
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "density", axis: false},
   marks: [
     Plot.ruleY([0]),
@@ -102,6 +120,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

@@ -10,6 +10,7 @@ import jStat from "npm:jstat";
 import * as math from "npm:mathjs";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -17,8 +18,13 @@ const [lambda, k] = params;
 const mean = lambda * math.gamma(1 + 1 / k);
 const variance = lambda ** 2 * (math.gamma(1 + 2 / k) - math.gamma(1 + 1 / k) ** 2);
 
-const pdf = d3.range(0.01, 10, 0.01).map((x) => ({x, pdf: jStat.weibull.pdf(x, lambda, k)}));
+const xDomainDynamic = [0.001, jStat.weibull.inv(0.99, lambda, k)];
+const pdf = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 1000).map((x) => ({x, pdf: jStat.weibull.pdf(x, lambda, k)}));
 const cdf = jStat.weibull.cdf(params[2], lambda, k);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -37,11 +43,20 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "f(x)"},
   marks: [
     Plot.ruleY([0]),
@@ -51,6 +66,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

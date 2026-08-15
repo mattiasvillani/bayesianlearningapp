@@ -9,13 +9,22 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
 const [a, b, quantile] = params;
 
-const unifpdf = d3.range(-5.1, 5.1, 0.001).map((x) => ({x, pdf: jStat.uniform.pdf(x, a, b)}));
+const loBound = Math.min(a, b);
+const hiBound = Math.max(a, b);
+const margin = Math.max(0.1 * (hiBound - loBound), 0.1);
+const xDomainDynamic = [loBound - margin, hiBound + margin];
+const unifpdf = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 1000).map((x) => ({x, pdf: jStat.uniform.pdf(x, a, b)}));
 const unifcdf = jStat.uniform.cdf(quantile, a, b);
+```
+
+```js
+const frozenStateX = {domain: [-3, 3]};
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -34,12 +43,21 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true, domain: [-5.5, 5.5]},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "f(x)", axis: true, domain: [0, 1.1 / (b - a)]},
   marks: [
     Plot.ruleY([0]),
@@ -48,6 +66,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

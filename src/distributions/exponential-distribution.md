@@ -9,14 +9,21 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
 const rate = parametrization === "rate" ? params[0] : 1 / params[0];
 const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
 
-const exponpdf = d3.range(Number.EPSILON, 5, 0.001).map((x) => ({x, pdf: jStat.exponential.pdf(x, rate)}));
+const xDomainDynamic = [0, jStat.exponential.inv(0.99, rate)];
+const exponpdf = d3.range(Number.EPSILON, xDomainDynamic[1], xDomainDynamic[1] / 1000).map((x) => ({x, pdf: jStat.exponential.pdf(x, rate)}));
+const yDomainDynamic = [0, jStat.exponential.pdf(0, rate)];
 const exponcdf = jStat.exponential.cdf(params[1], rate);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -45,12 +52,22 @@ const params = view(
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = yDomainDynamic;
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true, domain: [0, 5]},
-  y: {label: "f(x)", domain: [0, jStat.exponential.pdf(0.01, rate)]},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {label: "f(x)", domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.ruleX([0]),
@@ -59,6 +76,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

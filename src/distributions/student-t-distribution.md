@@ -9,12 +9,14 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
 const [mu, tau, nu, quantile] = params;
 
-const x = d3.range(mu - 8 * tau, mu + 8 * tau, 0.01);
+const xDomainDynamic = [mu - 8 * tau, mu + 8 * tau];
+const x = d3.range(xDomainDynamic[0], xDomainDynamic[1], 0.01);
 const studentdata = x.map((x) => ({x, pdf: jStat.studentt.pdf((x - mu) / tau, nu) / tau}));
 const normaldata = x.map((x) => ({x, pdf: jStat.normal.pdf(x, mu, tau)}));
 const studentcdf = jStat.studentt.cdf((quantile - mu) / tau, nu);
@@ -22,6 +24,10 @@ const normcdf = jStat.normal.cdf(quantile, mu, tau);
 
 const mean = nu > 1 ? mu : NaN;
 const variance = nu > 2 ? (nu / (nu - 2)) * tau ** 2 : NaN;
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -45,12 +51,21 @@ const shownormal = view(Inputs.toggle({value: false, label: "show normal"}));
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {axis: false, domain: [0, 1.05 * jStat.normal.pdf(mu, mu, tau)]},
   marks: [
     Plot.ruleY([0]),
@@ -60,6 +75,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

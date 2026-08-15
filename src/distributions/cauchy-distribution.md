@@ -9,15 +9,23 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
-const x = d3.range(-15, 15, 0.01);
-const cauchypdf = x.map((x) => ({x, pdf: jStat.studentt.pdf((x - params[0]) / params[1], 1) / params[1]}));
-const normalpdf = x.map((x) => ({x, pdf: jStat.normal.pdf(x, params[0], params[1])}));
+const xDomainDynamic = [params[0] - 15 * params[1], params[0] + 15 * params[1]];
+const xGrid = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 3000);
+const cauchypdf = xGrid.map((xv) => ({x: xv, pdf: jStat.studentt.pdf((xv - params[0]) / params[1], 1) / params[1]}));
+const normalpdf = xGrid.map((xv) => ({x: xv, pdf: jStat.normal.pdf(xv, params[0], params[1])}));
 const cauchycdf = jStat.studentt.cdf((params[2] - params[0]) / params[1], 1);
 const normcdf = jStat.normal.cdf(params[2], params[0], params[1]);
-const peak = Math.max(1 / (Math.PI * params[1]), jStat.normal.pdf(params[0], params[0], params[1]));
+const cauchyPeak = 1 / (Math.PI * params[1]);
+const normalPeak = jStat.normal.pdf(params[0], params[0], params[1]);
+const peak = shownormal ? Math.max(cauchyPeak, normalPeak) : cauchyPeak;
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -40,13 +48,23 @@ const shownormal = view(Inputs.toggle({value: false, label: "show normal"}));
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = [0, 1.05 * peak];
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
-  y: {axis: false, domain: [0, 1.05 * peak]},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {axis: false, domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.line(cauchypdf, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
@@ -58,6 +76,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

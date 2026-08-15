@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -16,10 +17,16 @@ const [alpha, beta] = params;
 const jstatScale = parametrization === "rate" ? 1 / beta : beta;
 const col = parametrization === "rate" ? mvcolors[0] : mvcolors[1];
 
-const pdfvals = d3.range(0, 10, 0.01).map((x) => ({x, pdf: jStat.gamma.pdf(x, alpha, jstatScale)}));
+const xDomainDynamic = [0, jStat.gamma.inv(0.99, alpha, jstatScale)];
+const pdfvals = d3.range(0, xDomainDynamic[1], xDomainDynamic[1] / 1000).map((x) => ({x, pdf: jStat.gamma.pdf(x, alpha, jstatScale)}));
+const yDomainDynamic = [0, d3.max(pdfvals, (d) => d.pdf) * 1.05];
 const cdf = jStat.gamma.cdf(params[2], alpha, jstatScale);
 const mean = parametrization === "rate" ? alpha / beta : alpha * beta;
 const variance = parametrization === "rate" ? alpha / beta ** 2 : alpha * beta ** 2;
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -50,12 +57,22 @@ const params = view(
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+const yDomain = yDomainDynamic;
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true},
-  y: {label: "f(x)"},
+  x: {label: "x", axis: true, domain: xDomain},
+  y: {label: "f(x)", domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.ruleX([0]),
@@ -64,6 +81,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -29,8 +30,16 @@ const variance = sigma ** 2 * (
   - ((truncnormalpdf(a, mu, sigma, a, b) - truncnormalpdf(b, mu, sigma, a, b)) / normfactor) ** 2
 );
 
-const pdfdata = d3.range(-5, 5, 0.01).map((x) => ({x, pdf: truncnormalpdf(x, mu, sigma, a, b)}));
+const loBound = Math.min(a, b);
+const hiBound = Math.max(a, b);
+const margin = Math.max(0.1 * (hiBound - loBound), 0.1);
+const xDomainDynamic = [loBound - margin, hiBound + margin];
+const pdfdata = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 1000).map((x) => ({x, pdf: truncnormalpdf(x, mu, sigma, a, b)}));
 const cdfval = truncnormalcdf(quantile, mu, sigma, a, b);
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -51,12 +60,21 @@ const params = view(Inputs.form([
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
+```
 
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "f(x)", axis: false},
   marks: [
     Plot.ruleY([0]),
@@ -65,6 +83,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 

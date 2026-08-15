@@ -26,6 +26,7 @@ const mean = d3.mean(draws);
 const variance = jStat.variance(draws);
 
 const pdfdata = d3.range(0.001, 1, 0.001).map((x) => ({x, pdf: jStat.normal.pdf(logit(x), mu, sigma) / (x * (1 - x))}));
+const yDomain = [0, d3.max(pdfdata, (d) => d.pdf) * 1.05];
 const cdf = jStat.normal.cdf(logit(quantile), mu, sigma);
 ```
 
@@ -50,8 +51,8 @@ const params = view(Inputs.form([
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true},
-  y: {label: "f(x)"},
+  x: {label: "x", axis: true, domain: [0, 1]},
+  y: {label: "f(x)", domain: yDomain},
   marks: [
     Plot.ruleY([0]),
     Plot.ruleX([0]),
