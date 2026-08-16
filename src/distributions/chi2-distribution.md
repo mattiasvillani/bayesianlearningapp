@@ -58,8 +58,8 @@ Plot.plot({
   marks: [
     Plot.ruleY([0]),
     Plot.ruleX([0]),
-    Plot.line(chisquarepdf, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
-    Plot.areaY(chisquarepdf, {filter: (d) => d.x <= params[1], x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2})
+    Plot.line(chisquarepdf, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2}),
+    Plot.areaY(chisquarepdf, {filter: (d) => d.x <= params[1], x: "x", y: "pdf", fill: mvcolors[1], opacity: 0.2})
   ]
 })
 ```

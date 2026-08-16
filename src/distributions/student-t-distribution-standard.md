@@ -15,16 +15,16 @@ import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```js
 const [nu, quantile] = params;
 
-const xBound = jStat.studentt.inv(0.995, nu);
+const mean = nu > 1 ? 0 : NaN;
+const variance = nu > 2 ? nu / (nu - 2) : NaN;
+
+const xBound = nu > 2 ? 6 * Math.sqrt(variance) : jStat.studentt.inv(0.995, nu);
 const xDomainDynamic = [-xBound, xBound];
 const x = d3.range(xDomainDynamic[0], xDomainDynamic[1], (xDomainDynamic[1] - xDomainDynamic[0]) / 2000);
 const studentdata = x.map((x) => ({x, pdf: jStat.studentt.pdf(x, nu)}));
 const normaldata = x.map((x) => ({x, pdf: jStat.normal.pdf(x, 0, 1)}));
 const studentcdf = jStat.studentt.cdf(quantile, nu);
 const normcdf = jStat.normal.cdf(quantile, 0, 1);
-
-const mean = nu > 1 ? 0 : NaN;
-const variance = nu > 2 ? nu / (nu - 2) : NaN;
 ```
 
 ```js
@@ -64,12 +64,12 @@ const xDomain = resolveDomain(frozenStateX, freezeAxis, xDomainDynamic);
 ```js
 Plot.plot({
   width: Math.min(720, width),
-  x: {label: "x", axis: true, domain: xDomain},
+  x: {label: "x", axis: true, domain: xDomain, ticks: 12},
   y: {axis: false, domain: [0, 1.05 * jStat.normal.pdf(0, 0, 1)]},
   marks: [
     Plot.ruleY([0]),
-    Plot.line(studentdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
-    Plot.areaY(studentdata, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2}),
+    Plot.line(studentdata, {x: "x", y: "pdf", stroke: mvcolors[2], strokeWidth: 2}),
+    Plot.areaY(studentdata, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[2], opacity: 0.2}),
     ...(shownormal ? [Plot.line(normaldata, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2})] : [])
   ]
 })

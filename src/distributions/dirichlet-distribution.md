@@ -7,8 +7,8 @@ toc: false
 
 ```js
 import * as math from "npm:mathjs";
-import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {ternaryDensity, ternaryGrid} from "../components/functionLibrary.js";
 ```
 
 ```js
@@ -24,17 +24,8 @@ function dirichletPdf(x, alpha) {
 const alpha = [params[0], params[1], params[2]];
 const alpha0 = alpha[0] + alpha[1] + alpha[2];
 
-const resolution = 80;
-const grid = [];
-for (let i = 1; i < resolution; i++) {
-  for (let j = 1; j < resolution - i; j++) {
-    const x1 = i / resolution;
-    const x2 = j / resolution;
-    const x3 = 1 - x1 - x2;
-    grid.push({x1, x2, pdf: dirichletPdf([x1, x2, x3], alpha)});
-  }
-}
-const maxpdf = d3.max(grid, (d) => d.pdf);
+const resolution = 40;
+const density = ternaryGrid(resolution, (x) => dirichletPdf(x, alpha));
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -56,19 +47,7 @@ const params = view(Inputs.form([
 <div class="card">
 
 ```js
-Plot.plot({
-  width: Math.min(500, width),
-  height: Math.min(500, width),
-  x: {label: "x₁", domain: [0, 1]},
-  y: {label: "x₂", domain: [0, 1]},
-  color: {
-    range: ["white", mvcolors[0]], interpolate: "hsl",
-    legend: true, type: "sequential", label: "pdf", domain: [0, maxpdf]
-  },
-  marks: [
-    Plot.contour(grid, {x: "x1", y: "x2", fill: "pdf", stroke: "currentColor", blur: 2})
-  ]
-})
+ternaryDensity(density, resolution, {size: Math.min(400, width)})
 ```
 
 </div>

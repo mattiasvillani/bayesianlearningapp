@@ -45,11 +45,11 @@ Plot.plot({
   marks: [
     Plot.ruleY([0]),
     Plot.barY(zipoispdf, {
-      x: "x", y: "pdf", fill: mvcolors[0], fillOpacity: 0.3, strokeWidth: 0,
+      x: "x", y: "pdf", fill: mvcolors[2], fillOpacity: 0.3, strokeWidth: 0,
       title: (d) => `P(X=${d.x}) = ${d.pdf.toPrecision(4)}`
     }),
     Plot.barY(zipoispdf, {
-      filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[0],
+      filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[2],
       title: (d) => `P(X=${d.x}) = ${d.pdf.toPrecision(4)}`
     })
   ]

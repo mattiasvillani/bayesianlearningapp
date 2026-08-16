@@ -69,8 +69,8 @@ Plot.plot({
   y: {axis: false, domain: [0, 1.05 * jStat.normal.pdf(mu, mu, tau)]},
   marks: [
     Plot.ruleY([0]),
-    Plot.line(studentdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
-    Plot.areaY(studentdata, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2}),
+    Plot.line(studentdata, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2}),
+    Plot.areaY(studentdata, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[1], opacity: 0.2}),
     ...(shownormal ? [Plot.line(normaldata, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2})] : [])
   ]
 })

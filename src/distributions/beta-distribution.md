@@ -17,7 +17,7 @@ const distparam =
     ? {alpha: params[0], beta: params[1]}
     : {alpha: params[0] * params[1], beta: (1 - params[0]) * params[1]};
 const {alpha, beta} = distparam;
-const col = parametrization === "traditional" ? mvcolors[0] : mvcolors[1];
+const col = parametrization === "traditional" ? mvcolors[1] : mvcolors[2];
 
 const betapdf = d3.range(0, 1.01, 0.001).map((x) => ({x, pdf: jStat.beta.pdf(x, alpha, beta)}));
 const betacdf = jStat.beta.cdf(params[2], alpha, beta);

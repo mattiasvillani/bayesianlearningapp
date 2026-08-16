@@ -76,8 +76,8 @@ Plot.plot({
   y: {label: "f(x)", domain: yDomain},
   marks: [
     Plot.ruleY([0]),
-    Plot.line(pdfdata, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
-    Plot.areaY(pdfdata, {filter: (d) => d.x <= params[3], x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2})
+    Plot.line(pdfdata, {x: "x", y: "pdf", stroke: mvcolors[2], strokeWidth: 2}),
+    Plot.areaY(pdfdata, {filter: (d) => d.x <= params[3], x: "x", y: "pdf", fill: mvcolors[2], opacity: 0.2})
   ]
 })
 ```

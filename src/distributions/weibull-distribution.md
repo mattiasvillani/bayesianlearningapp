@@ -61,8 +61,8 @@ Plot.plot({
   marks: [
     Plot.ruleY([0]),
     Plot.ruleX([0]),
-    Plot.line(pdf, {x: "x", y: "pdf", stroke: mvcolors[0], strokeWidth: 2}),
-    Plot.areaY(pdf, {filter: (d) => d.x <= params[2], x: "x", y: "pdf", fill: mvcolors[0], opacity: 0.2})
+    Plot.line(pdf, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2}),
+    Plot.areaY(pdf, {filter: (d) => d.x <= params[2], x: "x", y: "pdf", fill: mvcolors[1], opacity: 0.2})
   ]
 })
 ```

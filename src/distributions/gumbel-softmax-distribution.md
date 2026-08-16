@@ -7,8 +7,8 @@ toc: false
 
 ```js
 import * as math from "npm:mathjs";
-import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {ternaryDensity, ternaryGrid} from "../components/functionLibrary.js";
 ```
 
 ```js
@@ -27,19 +27,8 @@ const pi3 = 1 - params[0] - params[1];
 const Pi = [params[0], params[1], pi3];
 const tau = params[2];
 
-const resolution = 80;
-const grid = [];
-if (pi3 > 0) {
-  for (let i = 1; i < resolution; i++) {
-    for (let j = 1; j < resolution - i; j++) {
-      const x1 = i / resolution;
-      const x2 = j / resolution;
-      const x3 = 1 - x1 - x2;
-      grid.push({x1, x2, pdf: gumbelSoftmaxPdf([x1, x2, x3], Pi, tau)});
-    }
-  }
-}
-const maxpdf = grid.length ? d3.max(grid, (d) => d.pdf) : 1;
+const resolution = 40;
+const density = pi3 > 0 ? ternaryGrid(resolution, (x) => gumbelSoftmaxPdf(x, Pi, tau)) : [];
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -62,19 +51,7 @@ const params = view(Inputs.form([
 
 ```js
 pi3 > 0
-  ? Plot.plot({
-      width: Math.min(500, width),
-      height: Math.min(500, width),
-      x: {label: "x₁", domain: [0, 1]},
-      y: {label: "x₂", domain: [0, 1]},
-      color: {
-        range: ["white", mvcolors[0]], interpolate: "hsl",
-        legend: true, type: "sequential", label: "pdf", domain: [0, maxpdf]
-      },
-      marks: [
-        Plot.contour(grid, {x: "x1", y: "x2", fill: "pdf", stroke: "currentColor", blur: 2})
-      ]
-    })
+  ? ternaryDensity(density, resolution, {size: Math.min(400, width), color: "#67000d"})
   : html`<p>Probabilities outside the unit simplex (π₁ + π₂ must be ≤ 1).</p>`
 ```
 
