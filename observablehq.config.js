@@ -34,6 +34,10 @@ export default {
         {
           name: "MLE - Poisson data",
           path: "/likelihood/maximum-likelihood-poisson-data"
+        },
+        {
+          name: "MLE - Exponential data",
+          path: "/likelihood/maximum-likelihood-exponential-data"
         }
       ]
     },

@@ -1,30 +1,22 @@
 ---
-title: MLE - Poisson data
+title: MLE - Exponential data
 toc: false
 ---
 
-# Maximum Likelihood — Poisson data
+# Maximum Likelihood — Exponential data
 
 ```js
 import {mvcolors} from "../components/mvcolors.js";
-import {notebookLink} from "../components/notebookLink.js";
 ```
 
 ```js
-const kMax = 20;
-const lambdaMax = 20;
-const kGrid = d3.range(0, kMax + 1);
-function logFactorial(k) {
-  let s = 0;
-  for (let i = 2; i <= k; i++) s += Math.log(i);
-  return s;
-}
-function poissonPmf(k, lam) {
-  return Math.exp(k * Math.log(lam) - lam - logFactorial(k));
-}
+const lambdaMax = 5;
+const lambdaTrue = 1;
 const rng = d3.randomLcg(20240516 + regenerate);
-const poissonDraw = d3.randomPoisson.source(rng)(5);
-const fullData = Array.from({length: 1000}, () => poissonDraw());
+const exponentialDraw = d3.randomExponential.source(rng)(lambdaTrue);
+const fullData = Array.from({length: 1000}, () => exponentialDraw());
+const xMax = Math.ceil(2 * d3.max(fullData)) / 2;
+const numBins = 24;
 ```
 
 <div class="grid grid-cols-2" style="align-items: start;">
@@ -34,7 +26,7 @@ const fullData = Array.from({length: 1000}, () => poissonDraw());
 <div class="card" style="margin: 0;">
 
 **Model**<br>
-${tex`X_1,\ldots,X_n \overset{\mathrm{indep}}{\sim} \operatorname{Poisson}(\lambda)`}
+${tex`X_1,\ldots,X_n \mid \lambda \sim \operatorname{Expon}(\lambda)`}
 
 </div>
 
@@ -59,7 +51,7 @@ const n = view(nInput);
 ```
 
 ```js
-const lambdaInput = Inputs.range([0.1, lambdaMax], {value: 5, step: 0.1, label: tex`\lambda`});
+const lambdaInput = Inputs.range([0.05, lambdaMax], {value: 1, step: 0.05, label: tex`\lambda`});
 const lambda = view(lambdaInput);
 ```
 
@@ -69,7 +61,7 @@ const regenerate = view(regenerateInput);
 ```
 
 ```js
-const rightPlotInput = Inputs.radio(["likelihood", "log-likelihood", "average probability"], {value: "likelihood"});
+const rightPlotInput = Inputs.radio(["likelihood", "log-likelihood", "average likelihood"], {value: "likelihood"});
 const rightPlotChoice = view(rightPlotInput);
 ```
 
@@ -87,10 +79,9 @@ const showMLE = view(showMLEInput);
 ```js
 const data = fullData.slice(0, n);
 const sumX = d3.sum(data);
-const sumLogFact = d3.sum(data, (x) => logFactorial(x));
-const mle = d3.mean(data);
+const mle = n / sumX;
 function loglik(lam) {
-  return sumX * Math.log(lam) - n * lam - sumLogFact;
+  return n * Math.log(lam) - lam * sumX;
 }
 function avgProb(lam) {
   return Math.exp(loglik(lam) / n);
@@ -102,16 +93,16 @@ const rightCurveData = d3.range(0.001, lambdaMax, 0.02).map((lam) => ({lambda: l
 ```
 
 **Likelihood**<br>
-${tex`p(x_1,\ldots,x_n \mid \lambda) = \dfrac{\lambda^{\sum x_i} e^{-n\lambda}}{\prod_i x_i!}`}
+${tex`p(x_1,\ldots,x_n \mid \lambda) = \lambda^n \exp\Big(-\lambda\sum_i x_i\Big)`}
 
 **Log-likelihood**<br>
-${tex`\ell(\lambda) = \Big(\sum_i x_i\Big)\log\lambda - n\lambda - \sum_i \log(x_i!)`}
+${tex`\ell(\lambda) = n\log\lambda - \lambda\sum_i x_i`}
 
 **Maximum likelihood estimate (MLE)**<br>
-${tex`\hat\lambda = \bar{x} = ${mle.toPrecision(3)}`}
+${tex`\hat\lambda = \dfrac{1}{\bar x} = ${mle.toPrecision(3)}`}
 
 **Asymptotic distribution of the MLE**<br>
-${tex`\hat\lambda\ \overset{\text{approx}}{\sim}\ \mathcal{N}\Big(\lambda,\ \dfrac{\lambda}{n}\Big), \quad \text{se}(\hat\lambda) \approx \sqrt{\dfrac{\hat\lambda}{n}} = ${Math.sqrt(mle / n).toPrecision(3)}`}
+${tex`\hat\lambda\ \overset{\text{approx}}{\sim}\ \mathcal{N}\Big(\lambda,\ \dfrac{\lambda^2}{n}\Big), \quad \text{se}(\hat\lambda) \approx \dfrac{\hat\lambda}{\sqrt{n}} = ${(mle / Math.sqrt(n)).toPrecision(3)}`}
 
 </div>
 
@@ -123,18 +114,20 @@ ${tex`\hat\lambda\ \overset{\text{approx}}{\sim}\ \mathcal{N}\Big(\lambda,\ \dfr
   <div style="flex: 1;">
 
 ```js
-const dataFreqMap = d3.rollup(data, (v) => v.length / data.length, (d) => d);
-const dataFreq = kGrid.map((k) => ({k, x0: k - 0.5, x1: k + 0.5, freq: dataFreqMap.get(k) ?? 0, type: "Data"}));
-const selectedPmf = kGrid.map((k) => ({k, p: poissonPmf(k, lambda), type: "Selected λ"}));
-const mlePmf = showMLE ? kGrid.map((k) => ({k, p: poissonPmf(k, mle), type: "MLE of λ"})) : [];
+const binWidth = xMax / numBins;
+const binGen = d3.bin().domain([0, xMax]).thresholds(d3.range(0, xMax + binWidth, binWidth));
+const dataFreq = binGen(data).map((b) => ({x0: b.x0, x1: b.x1, density: b.length / (data.length * binWidth), type: "Data"}));
+const pdfGrid = d3.range(0, xMax, xMax / 200);
+const selectedPdf = pdfGrid.map((xv) => ({x: xv, p: lambda * Math.exp(-lambda * xv), type: "Selected λ"}));
+const mlePdf = showMLE ? pdfGrid.map((xv) => ({x: xv, p: mle * Math.exp(-mle * xv), type: "MLE of λ"})) : [];
 ```
 
 ```js
 Plot.plot({
   width: Math.min(440, width),
   title: "Data distribution",
-  x: {label: "x", domain: [-0.5, kMax + 0.5]},
-  y: {label: "P(x)", zero: true},
+  x: {label: "x", domain: [0, xMax]},
+  y: {label: "density", zero: true},
   color: {
     legend: true,
     domain: showMLE ? ["Data", "Selected λ", "MLE of λ"] : ["Data", "Selected λ"],
@@ -142,12 +135,10 @@ Plot.plot({
   },
   marks: [
     Plot.ruleY([0]),
-    Plot.ruleX([-0.5]),
-    Plot.rectY(dataFreq, {x1: "x0", x2: "x1", y: "freq", fill: "type"}),
-    Plot.line(selectedPmf, {x: "k", y: "p", stroke: "type"}),
-    Plot.dot(selectedPmf, {x: "k", y: "p", fill: "type", r: 4}),
-    Plot.line(mlePmf, {x: "k", y: "p", stroke: "type"}),
-    Plot.dot(mlePmf, {x: "k", y: "p", fill: "type", r: 4})
+    Plot.ruleX([0]),
+    Plot.rectY(dataFreq, {x1: "x0", x2: "x1", y: "density", fill: "type"}),
+    Plot.line(selectedPdf, {x: "x", y: "p", stroke: "type", strokeWidth: 2.5}),
+    Plot.line(mlePdf, {x: "x", y: "p", stroke: "type", strokeWidth: 2.5})
   ]
 })
 ```
@@ -157,9 +148,9 @@ Plot.plot({
 
 ```js
 const rightMode = rightPlotChoice === "log-likelihood" ? "loglik" : rightPlotChoice === "likelihood" ? "likelihood" : "avgProb";
-const rightPlotTitle = rightMode === "loglik" ? "Log-likelihood function" : rightMode === "likelihood" ? "Likelihood function" : "Average probability for a single observation";
+const rightPlotTitle = rightMode === "loglik" ? "Log-likelihood function" : rightMode === "likelihood" ? "Likelihood function" : "Average likelihood for a single observation";
 const rightYField = rightMode;
-const rightYLabel = rightMode === "loglik" ? "ℓ(λ)" : rightMode === "likelihood" ? "likelihood" : "probability";
+const rightYLabel = rightMode === "loglik" ? "ℓ(λ)" : rightMode === "likelihood" ? "likelihood" : "density";
 const rightYTickFormat = rightMode === "likelihood" ? "~e" : undefined;
 const rightAxisY = d3.min(rightCurveData, (d) => d[rightYField]);
 function rightY(lam) {
@@ -199,8 +190,6 @@ Plot.plot({
 </div>
 
 </div>
-
-${notebookLink("https://observablehq.com/@mattiasvillani/maximum-likelihood-for-iid-poisson-data")}
 
 <style>
 

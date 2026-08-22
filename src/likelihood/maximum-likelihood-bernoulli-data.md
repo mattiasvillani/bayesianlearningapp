@@ -24,9 +24,18 @@ function likelihood(th) {
 const rightCurveData = d3.range(0.001, 1, 0.001).map((th) => ({theta: th, avgProb: avgProb(th), loglik: loglik(th), likelihood: likelihood(th)}));
 ```
 
-<div class="grid grid-cols-2">
+<div class="grid grid-cols-2" style="align-items: start;">
 
-<div class="card">
+<div style="display: flex; flex-direction: column; gap: 1rem;">
+
+<div class="card" style="margin: 0;">
+
+**Model**<br>
+${tex`X_1,\ldots,X_n \overset{\mathrm{indep}}{\sim} \operatorname{Bern}(\theta)`}
+
+</div>
+
+<div class="card" style="margin: 0;">
 
 <b>Data</b>
 ${nInput}
@@ -64,10 +73,9 @@ const showMLE = view(showMLEInput);
 
 </div>
 
-<div class="card">
+</div>
 
-**Model**<br>
-${tex`X_1,\ldots,X_n \overset{\mathrm{indep}}{\sim} \operatorname{Bern}(\theta)`}
+<div class="card">
 
 **Likelihood**<br>
 ${tex`p(x_1,\ldots,x_n \mid \theta) = \theta^s (1-\theta)^{n-s}`}
@@ -75,8 +83,11 @@ ${tex`p(x_1,\ldots,x_n \mid \theta) = \theta^s (1-\theta)^{n-s}`}
 **Log-likelihood**<br>
 ${tex`\ell(\theta) = s\log\theta + (n-s)\log(1-\theta)`}
 
-**Maximum likelihood estimate**<br>
+**Maximum likelihood estimate (MLE)**<br>
 ${tex`\hat\theta = s/n = ${mle.toPrecision(3)}`}
+
+**Asymptotic distribution of the MLE**<br>
+${tex`\hat\theta\ \overset{\text{approx}}{\sim}\ \mathcal{N}\Big(\theta,\ \dfrac{\theta(1-\theta)}{n}\Big), \quad \text{se}(\hat\theta) \approx \sqrt{\dfrac{\hat\theta(1-\hat\theta)}{n}} = ${Math.sqrt(mle * (1 - mle) / n).toPrecision(3)}`}
 
 </div>
 
@@ -200,6 +211,24 @@ form.inputs-3a86ea-checkbox label {
 
 form.inputs-3a86ea-toggle label {
   width: auto;
+}
+
+.card .observablehq--block:empty {
+  display: none;
+}
+
+.card form[class="inputs-3a86ea"] > label {
+  width: auto;
+  margin-right: 1rem;
+}
+
+.card form[class="inputs-3a86ea"] input[type="number"] {
+  width: 3.5rem;
+  flex: none;
+}
+
+.card > p:last-of-type {
+  margin-bottom: 0;
 }
 
 </style>
