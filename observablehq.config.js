@@ -20,6 +20,10 @@ export default {
         {
           name: "Gaussian data (known variance)",
           path: "/conjugate-analysis/bayesian-inference-for-gaussian-known-variance"
+        },
+        {
+          name: "Gaussian data (unknown variance)",
+          path: "/conjugate-analysis/bayesian-inference-for-gaussian-unknown-variance"
         }
       ]
     },
