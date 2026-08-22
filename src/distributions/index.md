@@ -85,6 +85,6 @@ toc: false
   <a href="./bivariate-normal-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Bivariate Normal</a>
   <a href="./multivariate-normal-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Multivariate Normal</a>
   <a href="./dirichlet-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Dirichlet</a>
-  <a href="./multivariate-logitnormal-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Multivariate logit-normal</a>
+  <a href="./multivariate-logisticnormal-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Multivariate logit-normal</a>
   <a href="./gumbel-softmax-distribution" class="card" style="display:block; text-decoration:none; color:inherit;">Gumbel–Softmax</a>
 </div>

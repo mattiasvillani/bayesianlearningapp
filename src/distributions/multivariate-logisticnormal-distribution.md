@@ -1,9 +1,9 @@
 ---
-title: Multivariate logit-normal
+title: Multivariate Logistic Normal
 toc: false
 ---
 
-# Multivariate LogitNormal Distribution
+# Multivariate Logistic Normal Distribution
 
 ```js
 import * as math from "npm:mathjs";
@@ -68,30 +68,15 @@ ternaryDensity(density, resolution, {size: Math.min(400, width)})
 
 ```tex
 \begin{aligned}
-f(\boldsymbol{x}) &= \vert 2\pi\boldsymbol{\Sigma}\vert^{-1/2}\exp\Big(-\frac{1}{2}(\tilde{\boldsymbol{x}}-\boldsymbol{\mu})^\top\boldsymbol{\Sigma}^{-1}(\tilde{\boldsymbol{x}}-\boldsymbol{\mu})\Big) \\[0.4em]
-\tilde{\boldsymbol{x}} &= \big(\log(x_1/x_3),\ \log(x_2/x_3)\big) \\[0.4em]
-\mathrm{Cov}(\tilde{\boldsymbol{x}}) &= \begin{pmatrix}\sigma_1^2 & \rho\sigma_1\sigma_2 \\ \rho\sigma_1\sigma_2 & \sigma_2^2\end{pmatrix}
+f(\boldsymbol{x}) &= \vert 2\pi\boldsymbol{\Sigma}\vert^{-1/2}\Big(\prod_{k=1}^K x_k\Big)^{-1}\exp\Big(-\frac{1}{2}(\tilde{\boldsymbol{x}}-\boldsymbol{\mu})^\top\boldsymbol{\Sigma}^{-1}(\tilde{\boldsymbol{x}}-\boldsymbol{\mu})\Big) \\[0.4em]
+\tilde{\boldsymbol{x}} &= \Big(\log(x_1/x_K),\log(x_2/x_K),\ldots, \log(x_{K-1}/x_K)\Big)
 \end{aligned}
 ```
 
 </div>
 
-<div class="card">
 
-### Numerical properties
-
-|  | 1 | 2 |
-|---|---|---|
-| ${tex`\mathbb{E}(\tilde{X})`} | ${mu[0].toPrecision(2)} | ${mu[1].toPrecision(2)} |
-| ${tex`\mathbb{S}(\tilde{X})`} | ${sigma1.toPrecision(3)} | ${sigma2.toPrecision(3)} |
-
-|  |  |
-|---|---|
-| ${tex`\mathrm{Cov}(\tilde{X}_1, \tilde{X}_2)`} | ${(rho * sigma1 * sigma2).toPrecision(3)} |
-
-</div>
-
-${notebookLink("https://observablehq.com/@mattiasvillani/multivariate-logitnormal-distribution")}
+${notebookLink("https://observablehq.com/@mattiasvillani/multivariate-logisticnormal-distribution")}
 
 </div>
 

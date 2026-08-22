@@ -117,7 +117,7 @@ export default {
         {name: "Logit-normal", path: "/distributions/logit-normal-distribution"},
         {name: "LogNormal", path: "/distributions/lognormal-distribution"},
         {name: "Mixture of Poissons", path: "/distributions/mixture-of-poissons"},
-        {name: "Multivariate logit-normal", path: "/distributions/multivariate-logitnormal-distribution"},
+        {name: "Multivariate logistic normal", path: "/distributions/multivariate-logisticnormal-distribution"},
         {name: "Multivariate Normal", path: "/distributions/multivariate-normal-distribution"},
         {name: "Negative Binomial", path: "/distributions/negative-binomial-distribution"},
         {name: "Non-central Chi-squared", path: "/distributions/non-central-chi2-distribution"},
