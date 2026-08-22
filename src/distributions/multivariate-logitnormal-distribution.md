@@ -62,7 +62,7 @@ ternaryDensity(density, resolution, {size: Math.min(400, width)})
 
 <div class="dist-side">
 
-<div class="card">
+<div class="card properties-card">
 
 ### Properties
 
@@ -84,7 +84,10 @@ f(\boldsymbol{x}) &= \vert 2\pi\boldsymbol{\Sigma}\vert^{-1/2}\exp\Big(-\frac{1}
 |---|---|---|
 | ${tex`\mathbb{E}(\tilde{X})`} | ${mu[0].toPrecision(2)} | ${mu[1].toPrecision(2)} |
 | ${tex`\mathbb{S}(\tilde{X})`} | ${sigma1.toPrecision(3)} | ${sigma2.toPrecision(3)} |
-| Covariance | ${(rho * sigma1 * sigma2).toPrecision(3)} |  |
+
+|  |  |
+|---|---|
+| ${tex`\mathrm{Cov}(\tilde{X}_1, \tilde{X}_2)`} | ${(rho * sigma1 * sigma2).toPrecision(3)} |
 
 </div>
 
@@ -93,3 +96,11 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/multivariate-logitnorma
 </div>
 
 </div>
+
+<style>
+
+.properties-card .katex {
+  font-size: 0.95em;
+}
+
+</style>

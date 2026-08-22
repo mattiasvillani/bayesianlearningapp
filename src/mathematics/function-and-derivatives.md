@@ -105,11 +105,18 @@ const latexfunc = funcname === "linear" ? {expr: "f(x) = x", dprime: "f'(x) = 1"
   : funcname === "cos" ? {expr: "f(x) = \\cos(x)", dprime: "f'(x) = -\\sin(x)", dbiss: "f''(x) = -\\cos(x)"}
   : {expr: "f(x) = \\sin(x)", dprime: "f'(x) = \\cos(x)", dbiss: "f''(x) = -\\sin(x)"};
 
-const titleParts = [latexfunc.expr];
-if (plotFirstDeriv) titleParts.push(latexfunc.dprime);
-if (plotSecondDeriv) titleParts.push(latexfunc.dbiss);
-const titleStr = titleParts.join("\\qquad\\qquad ");
-const plotTitle = tex(Object.assign([titleStr], {raw: [titleStr]}));
+function coloredTex(latex, color) {
+  const span = document.createElement("span");
+  span.style.color = color;
+  span.appendChild(tex(Object.assign([latex], {raw: [latex]})));
+  return span;
+}
+const plotTitle = document.createElement("span");
+plotTitle.style.display = "inline-flex";
+plotTitle.style.gap = "2.5rem";
+plotTitle.appendChild(coloredTex(latexfunc.expr, mvcolors[0]));
+if (plotFirstDeriv) plotTitle.appendChild(coloredTex(latexfunc.dprime, mvcolors[1]));
+if (plotSecondDeriv) plotTitle.appendChild(coloredTex(latexfunc.dbiss, mvcolors[2]));
 
 const ngrid = 500;
 const funcdata = d3.range(xdomain[0], xdomain[1], (xdomain[1] - xdomain[0]) / ngrid).map((xv) => ({
@@ -141,12 +148,21 @@ Plot.plot({
     Plot.lineY(funcdata, {filter: plotSecondDeriv, x: "x", y: "fbiss", stroke: mvcolors[2], strokeWidth: 2.5}),
     Plot.lineY(funcdata, {filter: plotFirstDeriv, x: "x", y: "fprime", stroke: mvcolors[1], strokeWidth: 2.5}),
     Plot.lineY(funcdata, {x: "x", y: "f", stroke: mvcolors[0], strokeWidth: 2.5}),
-    Plot.text([{x: xdomain[0] + 0.2 * (xdomain[1] - xdomain[0]), y: 0.85 * ydomain[0], label: "derivatives do not exist at x=0"}],
-      {filter: funcname === "abs" && (plotFirstDeriv || plotSecondDeriv), x: "x", y: "y", text: "label", fill: "var(--theme-foreground-muted)"}),
+    Plot.text([{x: xdomain[0] + 0.16 * (xdomain[1] - xdomain[0]), y: 0.5 * ydomain[0], label: "derivatives do not exist at x=0"}],
+      {filter: funcname === "abs" && (plotFirstDeriv || plotSecondDeriv), x: "x", y: "y", text: "label", fill: "var(--theme-foreground-muted)", fontSize: 14}),
+    Plot.arrow([{
+      x1: xdomain[0] + 0.28 * (xdomain[1] - xdomain[0]), y1: 0.55 * ydomain[0],
+      x2: -0.005 * (xdomain[1] - xdomain[0]), y2: 0.08 * ydomain[0]
+    }], {
+      filter: funcname === "abs" && (plotFirstDeriv || plotSecondDeriv),
+      x1: "x1", y1: "y1", x2: "x2", y2: "y2",
+      bend: -22.5, stroke: "var(--theme-foreground-muted)"
+    }),
     Plot.tip(funcdata, Plot.pointerX({
       filter: showPlotTip,
       x: "x",
       y: "f",
+      fontSize: 14,
       title: (d) => {
         const labels = [`x=${d.x.toFixed(3)}`, `f(x)=${d.f.toFixed(3)}`];
         if (plotFirstDeriv) labels.push(`f'(x)=${d.fprime.toFixed(3)}`);
