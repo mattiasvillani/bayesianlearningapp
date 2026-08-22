@@ -6,183 +6,63 @@ toc: false
 # Multivariate normal distribution
 
 ```js
-import * as math from "npm:mathjs";
 import Plotly from "npm:plotly.js-dist-min";
-import {notebookLink} from "../components/notebookLink.js";
-import {hexbinGrid, densityLegend, themeColor} from "../components/functionLibrary.js";
-import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
+import {mvcolors} from "../components/mvcolors.js";
+import {themeColor} from "../components/functionLibrary.js";
 ```
 
 ```js
-function mvnpdf(x, mu, Sigma) {
-  const p = mu.length;
-  return (2 * Math.PI) ** (-p / 2) * math.det(Sigma) ** -0.5 *
-    math.exp(-0.5 * math.multiply(math.multiply(math.transpose(math.subtract(x, mu)), math.inv(Sigma)), math.subtract(x, mu)));
+const miniColor = themeColor("--mv-color-0", "#6C8EBF");
+const miniBackground = themeColor("--theme-background-a", "#ffffff");
+
+// p = 1: standard normal density curve
+const uniPts = d3.range(-3.2, 3.21, 0.08).map((x) => ({x, y: Math.exp(-0.5 * x * x) / Math.sqrt(2 * Math.PI)}));
+
+// p = 2: standard bivariate normal density surface (zero correlation)
+const bivN = 24;
+const bivDom = d3.range(bivN).map((i) => -2.2 + (4.4 * i) / (bivN - 1));
+const bivZ = bivDom.map((y) => bivDom.map((x) => Math.exp(-0.5 * (x * x + y * y)) / (2 * Math.PI)));
+
+// p = 3: trivariate normal density ellipsoid (fixed illustrative covariance)
+function cholesky3mini([[s00, s01, s02], [, s11, s12], [, , s22]]) {
+  const l00 = Math.sqrt(s00);
+  const l10 = s01 / l00;
+  const l20 = s02 / l00;
+  const l11 = Math.sqrt(s11 - l10 * l10);
+  const l21 = (s12 - l20 * l10) / l11;
+  const l22 = Math.sqrt(s22 - l20 * l20 - l21 * l21);
+  return [[l00, 0, 0], [l10, l11, 0], [l20, l21, l22]];
 }
-
-// Exact boundary of the region containing probability mass p, via the
-// Cholesky factor of Sigma (Sigma = L L^T with L = [[s1,0],[rho*s2, s2*sqrt(1-rho^2)]]).
-// For a bivariate normal, {x : (x-mu)'Sigma^-1(x-mu) <= c} has probability
-// 1 - exp(-c/2), so c = -2*log(1-p).
-function mvnEllipse(mu, sigma1, sigma2, rho, p, n = 100) {
-  const c = Math.sqrt(-2 * Math.log(1 - p));
-  const theta = d3.range(0, n + 1).map((i) => (2 * Math.PI * i) / n);
-  const x1 = theta.map((t) => mu[0] + c * sigma1 * Math.cos(t));
-  const x2 = theta.map((t) => mu[1] + c * (rho * sigma2 * Math.cos(t) + sigma2 * Math.sqrt(1 - rho * rho) * Math.sin(t)));
-  return {x1, x2};
+const [ts1, ts2, ts3] = [1, 0.7, 1.2];
+const [tr12, tr13, tr23] = [0.3, -0.25, 0.35];
+const triSigma = [
+  [ts1 ** 2, tr12 * ts1 * ts2, tr13 * ts1 * ts3],
+  [tr12 * ts1 * ts2, ts2 ** 2, tr23 * ts2 * ts3],
+  [tr13 * ts1 * ts3, tr23 * ts2 * ts3, ts3 ** 2]
+];
+const triL = cholesky3mini(triSigma);
+function ellipsoidMini(L, scale, res = 16) {
+  const X = [], Y = [], Z = [];
+  for (let i = 0; i <= res; i++) {
+    const theta = (Math.PI * i) / res;
+    const rowX = [], rowY = [], rowZ = [];
+    for (let j = 0; j <= res; j++) {
+      const phi = (2 * Math.PI * j) / res;
+      const u0 = Math.sin(theta) * Math.cos(phi);
+      const u1 = Math.sin(theta) * Math.sin(phi);
+      const u2 = Math.cos(theta);
+      rowX.push(scale * L[0][0] * u0);
+      rowY.push(scale * (L[1][0] * u0 + L[1][1] * u1));
+      rowZ.push(scale * (L[2][0] * u0 + L[2][1] * u1 + L[2][2] * u2));
+    }
+    X.push(rowX); Y.push(rowY); Z.push(rowZ);
+  }
+  return {X, Y, Z};
 }
-
-const mu = [param[0], param[1]];
-const sigma1 = param[2];
-const sigma2 = param[3];
-const rho = param[4];
-const Sigma = [[sigma1 ** 2, rho * sigma1 * sigma2], [rho * sigma1 * sigma2, sigma2 ** 2]];
-
-const x1DomainDynamic = [mu[0] - 4 * sigma1, mu[0] + 4 * sigma1];
-const x2DomainDynamic = [mu[1] - 4 * sigma2, mu[1] + 4 * sigma2];
-const x1Domain = resolveDomain(frozenStateX1, freezeAxes, x1DomainDynamic);
-const x2Domain = resolveDomain(frozenStateX2, freezeAxes, x2DomainDynamic);
-
-const resolution = 50;
-const mvnormal_on_grid = hexbinGrid(resolution, x1Domain, x2Domain, (x) => mvnpdf(x, mu, Sigma));
-
-const surfaceResolution = 40;
-const x1vals = d3.range(x1Domain[0], x1Domain[1], (x1Domain[1] - x1Domain[0]) / surfaceResolution);
-const x2vals = d3.range(x2Domain[0], x2Domain[1], (x2Domain[1] - x2Domain[0]) / surfaceResolution);
-const zmatrix = x2vals.map((x2) => x1vals.map((x1) => mvnpdf([x1, x2], mu, Sigma)));
-const pdfDomain = [0, d3.max(zmatrix.flat())];
-
-const probLevels = [0.5, 0.75, 0.9, 0.95, 0.99];
-const pdfLevels = probLevels.map((p) => pdfDomain[1] * (1 - p)).sort((a, b) => a - b);
+const triEllipsoid = ellipsoidMini(triL, 2.2);
 ```
 
-```js
-const frozenStateX1 = createFreezeState();
-const frozenStateX2 = createFreezeState();
-```
-
-<div class="dist-layout dist-layout--wide">
-
-<div class="dist-main">
-
-<div class="card param-card">
-
-```js
-const param = view(Inputs.form([
-  Inputs.range([-1, 1], {label: tex`\mu_1`, step: 0.1, value: 0}),
-  Inputs.range([-1, 1], {label: tex`\mu_2`, step: 0.1, value: 0}),
-  Inputs.range([0.1, 2], {label: tex`\sigma_1`, step: 0.1, value: 1}),
-  Inputs.range([0.1, 2], {label: tex`\sigma_2`, step: 0.1, value: 1}),
-  Inputs.range([-0.99, 0.99], {label: tex`\rho`, step: 0.01, value: 0})
-]));
-```
-
-</div>
-
-<div class="card" style="padding-top: 0.25rem;">
-
-```js
-const freezeInput = Inputs.toggle({label: "Freeze axes", value: true});
-const freezeAxes = view(freezeInput);
-```
-
-```js
-const viewInput = Inputs.radio(["Contour plot", "Surface plot"], {value: "Contour plot", label: "View:"});
-const viewMode = view(viewInput);
-```
-
-<div class="surface-col">
-
-```js
-viewMode === "Surface plot"
-  ? (async () => {
-      // The div we create below is detached (0x0) at the moment newPlot runs, so
-      // autosize/responsive can't measure a real container yet and briefly
-      // render at Plotly's hardcoded default size before a later resize
-      // corrects it — a visible flash. Measure the already-mounted static
-      // wrapper directly for the true size instead.
-      const host = document.querySelector(".surface-col");
-      const plotSize = Math.round(host?.getBoundingClientRect().width || 500);
-
-      const div = document.createElement("div");
-      div.style.width = `${plotSize}px`;
-      div.style.height = `${plotSize}px`;
-
-      const background = themeColor("--theme-background-a", "#ffffff");
-      const foreground = themeColor("--theme-foreground", "#1b1e23");
-
-      const ellipseTraces = probLevels.map((p) => {
-        const {x1, x2} = mvnEllipse(mu, sigma1, sigma2, rho, p);
-        return {
-          type: "scatter3d",
-          mode: "lines",
-          x: x1,
-          y: x2,
-          z: x1.map(() => 0),
-          line: {color: "black", width: 3},
-          showlegend: false,
-          hoverinfo: "skip"
-        };
-      });
-
-      // Plotly interpolates linearly between colorscale stops, so a plain
-      // 2-stop scale spends almost all visible color near the peak (density
-      // decays fast). Using many stops positioned at sqrt(t) approximates a
-      // sqrt-scaled color mapping, stretching contrast across low density.
-      const colorscale = d3.range(0, 1.001, 0.05).map((t) => [t, d3.interpolateRgb(background, "#08306b")(Math.sqrt(t))]);
-
-      await Plotly.newPlot(div, [{
-        type: "surface",
-        x: x1vals,
-        y: x2vals,
-        z: zmatrix,
-        opacity: 1,
-        colorscale,
-        showscale: false
-      }, ...ellipseTraces], {
-        width: plotSize,
-        height: plotSize,
-        margin: {l: 0, r: 0, t: 0, b: 0},
-        paper_bgcolor: "rgba(0,0,0,0)",
-        scene: {
-          xaxis: {title: {text: "x₁", font: {size: 12, color: foreground}}, tickfont: {size: 11, color: foreground}, color: foreground, gridcolor: foreground, showbackground: false, showgrid: false, autorange: "reversed"},
-          yaxis: {title: {text: "x₂", font: {size: 12, color: foreground}}, tickfont: {size: 11, color: foreground}, color: foreground, gridcolor: foreground, showbackground: false, showgrid: false, autorange: "reversed"},
-          zaxis: {title: {text: "f(x)", font: {size: 12, color: foreground}}, tickfont: {size: 11, color: foreground}, color: foreground, gridcolor: foreground, showbackground: false, showgrid: false, range: [-0.05 * pdfDomain[1], pdfDomain[1] * 1.05]}
-        }
-      }, {displayModeBar: false});
-
-      return div;
-    })()
-  : Plot.plot({
-      width: Math.round(document.querySelector(".surface-col")?.getBoundingClientRect().width || 500),
-      height: Math.round(document.querySelector(".surface-col")?.getBoundingClientRect().width || 500),
-      x: {label: "x₁", domain: x1Domain},
-      y: {label: "x₂", domain: x2Domain},
-      color: {type: "sqrt", range: [themeColor("--theme-background-a", "#ffffff"), "#08306b"], domain: pdfDomain, legend: false},
-      marks: [
-        Plot.contour(mvnormal_on_grid, {
-          filter: (d) => d.pdf > Number.EPSILON, x: "x1", y: "x2", fill: "pdf", stroke: "black",
-          blur: 2, thresholds: pdfLevels
-        }),
-        Plot.ruleY([x2Domain[0]], {stroke: "currentColor"}),
-        Plot.ruleX([x1Domain[0]], {stroke: "currentColor"})
-      ]
-    })
-```
-
-</div>
-
-```js
-densityLegend(pdfDomain, {orientation: "horizontal", length: width, color: "#08306b", label: "pdf", scale: "sqrt", tickFontSize: "13px", labelFontSize: "14px"})
-```
-
-<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
-
-</div>
-
-</div>
-
-<div class="dist-side">
+<div class="dist-layout">
 
 <div class="card properties-card">
 
@@ -190,40 +70,143 @@ densityLegend(pdfDomain, {orientation: "horizontal", length: width, color: "#083
 
 ```tex
 \begin{aligned}
-f(\boldsymbol{x}) &= \vert 2\pi\boldsymbol{\Sigma}\vert^{-1/2}\exp\Big(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^\top\boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\Big) \\[0.4em]
-\mathbb{E}(\boldsymbol{x}) &= \boldsymbol{\mu} \\[0.4em]
-\mathrm{Cov}(\boldsymbol{x}) &= \begin{pmatrix}\sigma_1^2 & \rho\sigma_1\sigma_2 \\ \rho\sigma_1\sigma_2 & \sigma_2^2\end{pmatrix}
+&\boldsymbol{x} \sim \mathcal{N}(\boldsymbol{\mu}, \boldsymbol{\Sigma}), \quad \text{where } \boldsymbol{x} = (x_1, x_2, \ldots, x_p)^\top \\[0.4em]
+&f(\boldsymbol{x}) = \vert 2\pi\boldsymbol{\Sigma}\vert^{-1/2}\exp\Big(-\frac{1}{2}(\boldsymbol{x}-\boldsymbol{\mu})^\top\boldsymbol{\Sigma}^{-1}(\boldsymbol{x}-\boldsymbol{\mu})\Big) \\[0.4em]
+&\mathbb{E}(\boldsymbol{x}) = \boldsymbol{\mu} \\[0.4em]
+&\mathrm{Cov}(\boldsymbol{x}) = \boldsymbol{\Sigma}
+\end{aligned}
+```
+
+Partitioning ${tex`\boldsymbol{x}`}, ${tex`\boldsymbol{\mu}`} and ${tex`\boldsymbol{\Sigma}`} into subvectors/blocks:
+
+```tex
+\boldsymbol{x} = \begin{pmatrix}\boldsymbol{x}_1\\ \boldsymbol{x}_2\end{pmatrix},\quad
+\boldsymbol{\mu} = \begin{pmatrix}\boldsymbol{\mu}_1\\ \boldsymbol{\mu}_2\end{pmatrix},\quad
+\boldsymbol{\Sigma} = \begin{pmatrix}\boldsymbol{\Sigma}_{11} & \boldsymbol{\Sigma}_{12}\\ \boldsymbol{\Sigma}_{21} & \boldsymbol{\Sigma}_{22}\end{pmatrix}
+```
+
+The **marginal distributions** are
+
+```tex
+\boldsymbol{x}_1 \sim \mathcal{N}(\boldsymbol{\mu}_1, \boldsymbol{\Sigma}_{11}), \quad \boldsymbol{x}_2 \sim \mathcal{N}(\boldsymbol{\mu}_2, \boldsymbol{\Sigma}_{22})
+```
+
+The **conditional distribution** is
+
+```tex
+\begin{aligned}
+&\boldsymbol{x}_1 \mid \boldsymbol{x}_2 \sim \mathcal{N}\big(\boldsymbol{\mu}_{1\mid 2},\ \boldsymbol{\Sigma}_{1\mid 2}\big) \\[0.4em]
+&\boldsymbol{\mu}_{1\mid 2} = \boldsymbol{\mu}_1 + \boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}(\boldsymbol{x}_2-\boldsymbol{\mu}_2) \\[0.4em]
+&\boldsymbol{\Sigma}_{1\mid 2} = \boldsymbol{\Sigma}_{11}-\boldsymbol{\Sigma}_{12}\boldsymbol{\Sigma}_{22}^{-1}\boldsymbol{\Sigma}_{21}
 \end{aligned}
 ```
 
 </div>
 
-<div class="card">
+<div class="card mini-plots-card">
 
-### Numerical properties
+### Increasing dimension
 
-|  | 1 | 2 |
-|---|---|---|
-| ${tex`\mathbb{E}(X)`} | ${mu[0].toPrecision(2)} | ${mu[1].toPrecision(2)} |
-| ${tex`\mathbb{S}(X)`} | ${sigma1.toPrecision(3)} | ${sigma2.toPrecision(3)} |
-| Covariance | ${(rho * sigma1 * sigma2).toPrecision(3)} |  |
+```js
+(async () => {
+  const wrap = document.createElement("div");
+  wrap.style.display = "flex";
+  wrap.style.flexDirection = "column";
+  wrap.style.gap = "0.5rem";
+  wrap.style.alignItems = "center";
+
+  function labeledBox(label, node) {
+    const box = document.createElement("div");
+    box.style.display = "flex";
+    box.style.flexDirection = "column";
+    box.style.alignItems = "center";
+    const cap = document.createElement("div");
+    cap.style.fontSize = "12px";
+    cap.style.marginBottom = "0.25rem";
+    cap.appendChild(tex`${label}`);
+    box.appendChild(cap);
+    box.appendChild(node);
+    return box;
+  }
+
+  const uniNode = Plot.plot({
+    width: 100, height: 90, margin: 4, axis: null,
+    marks: [
+      Plot.areaY(uniPts, {x: "x", y: "y", fill: mvcolors[0], opacity: 0.25}),
+      Plot.line(uniPts, {x: "x", y: "y", stroke: mvcolors[0], strokeWidth: 2})
+    ]
+  });
+
+  const bivDiv = document.createElement("div");
+  bivDiv.style.width = "100px";
+  bivDiv.style.height = "90px";
+  bivDiv.style.marginTop = "-14px";
+  await Plotly.newPlot(bivDiv, [{
+    type: "surface",
+    x: bivDom, y: bivDom, z: bivZ,
+    colorscale: [[0, miniBackground], [1, miniColor]],
+    showscale: false,
+    hoverinfo: "skip",
+    contours: {x: {highlight: false}, y: {highlight: false}, z: {highlight: false}}
+  }], {
+    width: 100, height: 90,
+    margin: {l: 0, r: 0, t: 0, b: 0},
+    paper_bgcolor: "rgba(0,0,0,0)",
+    scene: {
+      xaxis: {visible: false}, yaxis: {visible: false}, zaxis: {visible: false},
+      aspectmode: "manual", aspectratio: {x: 1, y: 1, z: 0.6},
+      camera: {eye: {x: 0.85, y: -0.85, z: 0.7}}
+    }
+  }, {displayModeBar: false});
+
+  const triDiv = document.createElement("div");
+  triDiv.style.width = "100px";
+  triDiv.style.height = "90px";
+  await Plotly.newPlot(triDiv, [{
+    type: "surface",
+    x: triEllipsoid.X, y: triEllipsoid.Y, z: triEllipsoid.Z,
+    colorscale: [[0, miniColor], [1, miniColor]],
+    showscale: false,
+    hoverinfo: "skip",
+    opacity: 0.85,
+    contours: {x: {highlight: false}, y: {highlight: false}, z: {highlight: false}}
+  }], {
+    width: 100, height: 90,
+    margin: {l: 0, r: 0, t: 0, b: 0},
+    paper_bgcolor: "rgba(0,0,0,0)",
+    scene: {
+      xaxis: {visible: false}, yaxis: {visible: false}, zaxis: {visible: false},
+      camera: {eye: {x: 1.6, y: -1.6, z: 0.9}}
+    }
+  }, {displayModeBar: false});
+
+  wrap.appendChild(labeledBox("p = 1", uniNode));
+  wrap.appendChild(labeledBox("p = 2", bivDiv));
+  wrap.appendChild(labeledBox("p = 3", triDiv));
+
+  return wrap;
+})()
+```
 
 </div>
 
-${notebookLink("https://observablehq.com/@mattiasvillani/multivariate-normal-distribution")}
-
 </div>
 
-</div>
+## Interactive visualizations
+
+- [Univariate normal distribution (p=1)](./normal-gaussian-distribution)
+- [Bivariate normal distribution (p=2)](./bivariate-normal-distribution)
+- [Trivariate normal distribution (p=3)](./trivariate-normal-distribution)
 
 <style>
 
-.param-card input[type="range"] {
-  margin-left: 0.35rem;
-}
-
 .properties-card .katex {
   font-size: 0.95em;
+}
+
+.properties-card .katex-display,
+.properties-card .katex-display > .katex {
+  text-align: left;
 }
 
 </style>
