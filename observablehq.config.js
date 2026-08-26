@@ -2,6 +2,16 @@ export default {
   title: "Bayesian Learning",
   pages: [
     {
+      name: "Bayesics",
+      open: true,
+      pages: [
+        {
+          name: "Bayes' theorem for events",
+          path: "/bayesics/bayes-theorem-for-events"
+        }
+      ]
+    },
+    {
       name: "Conjugate Analysis",
       open: true,
       pages: [
