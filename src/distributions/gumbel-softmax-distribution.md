@@ -51,7 +51,7 @@ const params = view(Inputs.form([
 
 ```js
 pi3 > 0
-  ? ternaryDensity(density, resolution, {size: Math.min(400, width), color: "#67000d"})
+  ? ternaryDensity(density, resolution, {size: Math.min(400, width), color: "#67000d", dark})
   : html`<p>Probabilities outside the unit simplex (π₁ + π₂ must be ≤ 1).</p>`
 ```
 

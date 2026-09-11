@@ -34,6 +34,10 @@ export default {
         {
           name: "Gaussian data (unknown variance)",
           path: "/conjugate-analysis/bayesian-inference-for-gaussian-unknown-variance"
+        },
+        {
+          name: "Multinomial data",
+          path: "/conjugate-analysis/bayesian-inference-for-multinomial-dirichlet-data"
         }
       ]
     },

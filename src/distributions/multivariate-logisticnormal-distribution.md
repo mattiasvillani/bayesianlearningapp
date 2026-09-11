@@ -53,7 +53,7 @@ const params = view(Inputs.form([
 <div class="card">
 
 ```js
-ternaryDensity(density, resolution, {size: Math.min(400, width)})
+ternaryDensity(density, resolution, {size: Math.min(400, width), dark})
 ```
 
 </div>

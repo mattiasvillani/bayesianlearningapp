@@ -310,14 +310,25 @@ export function hexbinDensity(grid, resolution, options = {}) {
 
 // Renders a hexbin-based ternary (triangle simplex) density plot.
 // Adapted from https://observablehq.com/@mattiasvillani/dirichlet-distribution
+//
+// Pass the page's reactive `dark` global (Framework's built-in light/dark
+// generator) as `options.dark` so the call site depends on it. themeColor()
+// below already re-resolves the correct color on every invocation — the
+// missing piece was that nothing forced a re-invocation when the toggle was
+// clicked (a plain DOM attribute change, invisible to Observable's reactive
+// graph), leaving stroke/background frozen at whatever theme was active on
+// first render. `dark` isn't otherwise read; referencing it here is what
+// makes the containing cell re-run on toggle.
 export function ternaryDensity(density, resolution, options = {}) {
   const opts = Object.assign({
     size: 400,
     margin: {left: 30, top: 30, right: 30, bottom: 30},
+    dark: undefined,
     color: "#08306b",
     background: themeColor("--theme-background-a", "#ffffff"),
     stroke: themeColor("--theme-foreground", "#1b1e23"),
-    labels: ["x₁", "x₂", "x₃"]
+    labels: ["x₁", "x₂", "x₃"],
+    labelOffset: 1
   }, options);
 
   const fillScale = d3.scaleSequential(d3.interpolateRgb(opts.background, opts.color))
@@ -332,7 +343,19 @@ export function ternaryDensity(density, resolution, options = {}) {
   const x = d3.scaleLinear().domain([0, 1]).range([opts.margin.left, opts.size - opts.margin.right]);
   const y = d3.scaleLinear().domain([0, 1]).range([opts.size - opts.margin.bottom, opts.margin.top]);
 
-  const axisBottom = (g) => g.call(d3.axisBottom(x).ticks(4));
+  // Ticks point outward (away from the simplex, matching the default
+  // orientation) with extra tickPadding so the label text clears the tick
+  // mark instead of sitting right on top of it. textOffset (tickSize +
+  // tickPadding) is also the pivot the rotated side axes rotate their
+  // labels in place around, below.
+  const tickSize = 6;
+  const tickPadding = 6;
+  const textOffset = tickSize + tickPadding;
+  // The two rotated (right/left) axes get extra label clearance on top of
+  // textOffset — rotated text reads as more cramped against its tick at the
+  // same pixel distance than the upright bottom-axis text does.
+  const sideTextOffset = textOffset + 6;
+  const axisBottom = (g) => g.call(d3.axisBottom(x).ticks(4).tickSize(tickSize).tickPadding(tickPadding));
   const removeLine = (g) => g.select(".domain").remove();
   const styleAxis = (g) => g
     .call((s) => s.selectAll("text").attr("fill", opts.stroke))
@@ -341,7 +364,8 @@ export function ternaryDensity(density, resolution, options = {}) {
   const hexagonSize = (x(1 / (2 * resolution)) - x(0)) / Math.cos(Math.PI / 6) + 1;
 
   const corners = [{x: 0.5, y: Math.sqrt(3) / 2}, {x: 0, y: 0}, {x: 1, y: 0}];
-  const cornersExpanded = [{x: 0.5, y: Math.sqrt(3) / 2 + 0.1}, {x: -0.1, y: -0.05}, {x: 1.1, y: -0.05}];
+  const pad = 0.1 * opts.labelOffset;
+  const cornersExpanded = [{x: 0.5, y: Math.sqrt(3) / 2 + pad}, {x: -pad, y: -pad / 2}, {x: 1 + pad, y: -pad / 2}];
   const line = d3.line().x((d) => x(d.x)).y((d) => y(d.y));
   const clipId = `ternary-triangle-${Math.random().toString(36).slice(2)}`;
 
@@ -374,17 +398,39 @@ export function ternaryDensity(density, resolution, options = {}) {
     .attr("fill", (d) => fillScale(d.density))
     .attr("d", hexbin.hexagon(hexagonSize));
 
-  svg.selectAll("text.ternary-label")
-    .data([[cornersExpanded[0], cornersExpanded[1]], [cornersExpanded[1], cornersExpanded[2]], [cornersExpanded[2], cornersExpanded[0]]])
-    .join("text")
-    .attr("class", "ternary-label")
-    .attr("text-anchor", "middle")
-    .attr("alignment-baseline", "middle")
-    .attr("font-style", "italic")
-    .attr("fill", opts.stroke)
-    .attr("x", (d) => (x(d[0].x) + x(d[1].x)) / 2)
-    .attr("y", (d) => (y(d[0].y) + y(d[1].y)) / 2)
-    .text((d, i) => opts.labels[[1, 2, 0][i]]);
+  const labelPositions = [[cornersExpanded[0], cornersExpanded[1]], [cornersExpanded[1], cornersExpanded[2]], [cornersExpanded[2], cornersExpanded[0]]];
+
+  if (opts.labelNodes) {
+    // Renders each label as a KaTeX-produced DOM node (via a foreignObject)
+    // instead of plain SVG text, so callers can pass real LaTeX (e.g. tex`\theta_1`).
+    svg.selectAll(".ternary-label")
+      .data(labelPositions)
+      .join("foreignObject")
+      .attr("class", "ternary-label")
+      .attr("x", (d) => (x(d[0].x) + x(d[1].x)) / 2)
+      .attr("y", (d) => (y(d[0].y) + y(d[1].y)) / 2)
+      .attr("width", 1)
+      .attr("height", 1)
+      .attr("overflow", "visible")
+      .each(function (d, i) {
+        const wrapper = document.createElement("div");
+        wrapper.style.cssText = "transform: translate(-50%, -50%); display: inline-block; white-space: nowrap; color: " + opts.stroke + ";";
+        wrapper.appendChild(opts.labelNodes[[1, 2, 0][i]]());
+        this.appendChild(wrapper);
+      });
+  } else {
+    svg.selectAll("text.ternary-label")
+      .data(labelPositions)
+      .join("text")
+      .attr("class", "ternary-label")
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .attr("font-style", "italic")
+      .attr("fill", opts.stroke)
+      .attr("x", (d) => (x(d[0].x) + x(d[1].x)) / 2)
+      .attr("y", (d) => (y(d[0].y) + y(d[1].y)) / 2)
+      .text((d, i) => opts.labels[[1, 2, 0][i]]);
+  }
 
   svg.append("g")
     .attr("transform", `translate(0, ${opts.size - opts.margin.bottom})`)
@@ -392,18 +438,24 @@ export function ternaryDensity(density, resolution, options = {}) {
     .call(removeLine)
     .call(styleAxis);
 
+  // The right/left axes reuse the bottom axis's `x` scale (range starting at
+  // margin.left), then rotate it onto each edge. The group's own origin must
+  // therefore land margin.left short of the true vertex (in the pre-rotation
+  // +x direction), not at the vertex itself — hence the R(angle)·(margin.left,0)
+  // correction below, exact for any size/margin (not just the values this was
+  // first tuned for).
   svg.append("g")
-    .attr("transform", `translate(${x(1) + opts.margin.right / 2}, ${y(0) + 26}) rotate(-120)`)
+    .attr("transform", `translate(${x(1) + opts.margin.left * 0.5}, ${y(0) + opts.margin.left * (Math.sqrt(3) / 2)}) rotate(-120)`)
     .call(axisBottom)
     .call(removeLine)
-    .call((g) => g.selectAll("text").attr("transform", "translate(11, 22) rotate(120)"))
+    .call((g) => g.selectAll("text").attr("y", sideTextOffset).attr("transform", `rotate(120, 0, ${sideTextOffset})`))
     .call(styleAxis);
 
   svg.append("g")
-    .attr("transform", `translate(${x(0.5) + opts.margin.left / 2}, ${y(Math.sqrt(3) / 2) - 26}) rotate(120)`)
+    .attr("transform", `translate(${x(0.5) + opts.margin.left * 0.5}, ${y(Math.sqrt(3) / 2) - opts.margin.left * (Math.sqrt(3) / 2)}) rotate(120)`)
     .call(axisBottom)
     .call(removeLine)
-    .call((g) => g.selectAll("text").attr("transform", "translate(-11, 22) rotate(-120)"))
+    .call((g) => g.selectAll("text").attr("y", sideTextOffset).attr("transform", `rotate(-120, 0, ${sideTextOffset})`))
     .call(styleAxis);
 
   return svg.node();
