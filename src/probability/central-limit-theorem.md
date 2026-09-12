@@ -60,12 +60,17 @@ function pdfOrPmf(distType, p, x) {
 function pdfDomain(distType, p) {
   switch (distType) {
     case "beta": return [0, 1];
-    case "uniform": return [p[0], p[1]];
+    // Padded beyond [a, b] so the pdf curve visibly drops to zero at the
+    // edges instead of ending abruptly at the plot border.
+    case "uniform": {
+      const pad = 0.15 * (p[1] - p[0]);
+      return [p[0] - pad, p[1] + pad];
+    }
     case "chi2": return [0, jStat.chisquare.inv(0.999, p[0])];
-    // Heavier-tailed types use a tighter 90% window (not 99.8%) — otherwise
+    // Heavier-tailed types use a tighter window (not 99.8%) — otherwise
     // the extreme tail quantile stretches the axis until the peak is a sliver.
     case "lognormal": return [0, jStat.lognormal.inv(0.95, p[0], p[1])];
-    case "studentt": return [p[0] + p[1] * jStat.studentt.inv(0.05, p[2]), p[0] + p[1] * jStat.studentt.inv(0.95, p[2])];
+    case "studentt": return [p[0] + p[1] * jStat.studentt.inv(0.005, p[2]), p[0] + p[1] * jStat.studentt.inv(0.995, p[2])];
     case "cauchy": return [p[0] + p[1] * jStat.studentt.inv(0.05, 1), p[0] + p[1] * jStat.studentt.inv(0.95, 1)];
     case "bimodal": {
       const mus = [p[0], p[1]], sigmas = [p[2], p[3]];
