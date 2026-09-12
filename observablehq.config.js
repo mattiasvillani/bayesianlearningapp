@@ -8,6 +8,10 @@ export default {
         {
           name: "Bayes' theorem for events",
           path: "/bayesics/bayes-theorem-for-events"
+        },
+        {
+          name: "Bayesian credible intervals",
+          path: "/bayesics/bayesian-credible-intervals"
         }
       ]
     },
@@ -60,6 +64,20 @@ export default {
         {
           name: "MLE - Uniform data",
           path: "/likelihood/maximum-likelihood-uniform-data"
+        }
+      ]
+    },
+    {
+      name: "Probability",
+      open: false,
+      pages: [
+        {
+          name: "Law of Large Numbers",
+          path: "/probability/law-of-large-numbers"
+        },
+        {
+          name: "Central Limit Theorem",
+          path: "/probability/central-limit-theorem"
         }
       ]
     },
