@@ -56,6 +56,10 @@ export default {
         {
           name: "MLE - Exponential data",
           path: "/likelihood/maximum-likelihood-exponential-data"
+        },
+        {
+          name: "MLE - Uniform data",
+          path: "/likelihood/maximum-likelihood-uniform-data"
         }
       ]
     },
