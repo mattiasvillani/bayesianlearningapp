@@ -110,6 +110,7 @@ const sigmaVect = post.invOmegaN.map((row, i) => Math.sqrt(post.sigma2N * row[i]
 const allMarginals = marginalPosteriors(post.muN, sigmaVect, post.nuN, varnames);
 ```
 
+<b>Marginal posterior distributions</b>
 <div class="grid grid-cols-2">
   <div>${marginalPlot(groupData(allMarginals, mainVars), groupOls(mainVars), "Main effects", groupColor(mainVars))}</div>
   <div>${marginalPlot(groupData(allMarginals, seasonVars), groupOls(seasonVars), "Season", groupColor(seasonVars))}</div>
