@@ -46,6 +46,16 @@ export default {
       ]
     },
     {
+      name: "Regression",
+      open: false,
+      pages: [
+        {
+          name: "Linear Regression",
+          path: "/regression/linear-regression"
+        }
+      ]
+    },
+    {
       name: "Likelihood",
       open: false,
       pages: [
