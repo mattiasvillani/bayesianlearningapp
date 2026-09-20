@@ -188,7 +188,7 @@ const sampleMeans = samplingMeans(popData, sampleSize, nRep).map((mean) => ({mea
 
 ```js
 const dataCaption = html`<div style="color: ${mvcolors[0]}; font-size: 16px; margin-bottom: 0.75rem;">${discreteTypes.has(distType) ? "Probability mass function" : "Probability density function"} of the selected distribution.</div>`;
-const meansCaption = html`<div style="color: ${mvcolors[2]}; font-size: 16px; margin-bottom: 0.75rem;">Distribution of the sample mean from samples with n=${sampleSize} observations.</div>`;
+const meansCaption = html`<div style="color: ${mvcolors[2]}; font-size: 16px; margin-bottom: 0.75rem;">Distribution of the sample mean from datasets with n=${sampleSize} observations.</div>`;
 ```
 
 ```js
