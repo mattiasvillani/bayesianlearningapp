@@ -88,6 +88,10 @@ export default {
         {
           name: "Central Limit Theorem",
           path: "/probability/central-limit-theorem"
+        },
+        {
+          name: "Tails and Distribution of the Maximum",
+          path: "/probability/distribution-of-the-maximum"
         }
       ]
     },
