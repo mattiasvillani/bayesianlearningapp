@@ -80,12 +80,12 @@ function pdfmaxZ(x, n) {
 <div class="card" style="flex: 1;">
 
 <b>Settings</b>
-${settingsInput}
+<div class="settings-row">${settingsInput}</div>
 
 ```js
 const settingsInput = Inputs.form([
-  Inputs.range([1, 50], {value: 10, step: 1, label: tex`\text{sample size, }n`}),
-  Inputs.range([1, 100], {value: 10, step: 1, label: tex`\text{df student-}t,\ \nu`})
+  Inputs.range([2, 200], {value: 50, step: 1, label: tex`\text{sample size, }n`}),
+  Inputs.range([1, 100], {value: 4, step: 1, label: tex`\text{degrees of freedom in student-}t,\ \nu`})
 ]);
 const settings = view(settingsInput);
 ```
@@ -128,7 +128,7 @@ Here we compare four unit-scale distributions — [Normal](../distributions/norm
 
 </div>
 
-<div class="card">
+<div class="card graphs-card">
 
 ```js
 const xGrid = d3.range(-5, 5, 0.02);
@@ -173,7 +173,7 @@ const distColor = {domain: shownDistNames, range: shownDistNames.map((dist) => d
     width: Math.min(440, width),
     height: 340,
     style: {fontSize: "13px"},
-    title: showLog ? "log pdf of X" : "pdf of X",
+    title: showLog ? html`log pdf of ${tex`X`}` : html`pdf of ${tex`X`}`,
     color: {legend: true, ...distColor},
     x: {label: "x"},
     y: showLog ? {axis: false, type: "log", domain: [1e-4, 1]} : {axis: false, domain: [0, 0.85]},
@@ -188,7 +188,7 @@ const distColor = {domain: shownDistNames, range: shownDistNames.map((dist) => d
     width: Math.min(440, width),
     height: 340,
     style: {fontSize: "13px"},
-    title: "pdf of max(X₁,...,Xₙ)",
+    title: html`pdf of ${tex`\max(X_1,\ldots,X_{${n}})`}`,
     color: {legend: true, ...distColor},
     x: {label: "xₘₐₓ"},
     y: {axis: false},
@@ -210,9 +210,31 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/distribution-of-the-max
 
 <style>
 
+.dist-main {
+  gap: 0.5rem;
+}
+
+.graphs-card {
+  padding-top: 4px;
+}
+
 .show-log-row form.inputs-3a86ea > label {
   width: auto;
   white-space: nowrap;
+}
+
+.settings-row form.inputs-3a86ea {
+  --label-width: 230px;
+}
+
+.settings-row form.inputs-3a86ea > label {
+  white-space: nowrap;
+  margin-right: 1rem;
+}
+
+.settings-row input[type="number"] {
+  width: 52px;
+  flex-shrink: 0;
 }
 
 </style>
