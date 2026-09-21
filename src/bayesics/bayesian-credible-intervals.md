@@ -13,6 +13,7 @@ ${tex.block`\Pr(\theta \in [l,u] \mid \boldsymbol{x}) = 0.95`}
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -62,31 +63,41 @@ function initialRange(distType, p) {
 
 // Highest-Posterior-Density region: rank grid points by density, keep the
 // most probable ones until their (discretized) mass reaches coverageFrac,
-// then split the kept x's into contiguous runs.
+// then split the kept x's into contiguous runs. Each point's local bin width
+// (rather than one global spacing) is used, so this works for non-uniform
+// grids too — for a uniform grid it reduces to the original constant-width
+// behavior exactly.
 function computeHPD(xGrid, pdfVals, coverageFrac) {
-  const binSize = xGrid[1] - xGrid[0];
+  const n = xGrid.length;
+  const binWidths = xGrid.map((x, i) => {
+    const leftGap = i > 0 ? x - xGrid[i - 1] : xGrid[i + 1] - x;
+    const rightGap = i < n - 1 ? xGrid[i + 1] - x : x - xGrid[i - 1];
+    return (leftGap + rightGap) / 2;
+  });
   const order = pdfVals.map((_, i) => i).sort((a, b) => pdfVals[b] - pdfVals[a]);
   let cumulative = 0;
   let cutoff = order.length;
   for (let k = 0; k < order.length; k++) {
-    cumulative += pdfVals[order[k]] * binSize;
+    cumulative += pdfVals[order[k]] * binWidths[order[k]];
     if (cumulative >= coverageFrac) {
       cutoff = k + 1;
       break;
     }
   }
-  const included = order.slice(0, cutoff).map((i) => xGrid[i]).sort((a, b) => a - b);
+  const included = order.slice(0, cutoff).sort((a, b) => xGrid[a] - xGrid[b]);
   const intervals = [];
-  let start = included[0];
-  let prev = included[0];
+  let startIdx = included[0];
+  let prevIdx = included[0];
   for (let k = 1; k < included.length; k++) {
-    if (included[k] - prev > 1.9 * binSize) {
-      intervals.push([start, prev]);
-      start = included[k];
+    const idx = included[k];
+    const gapThreshold = 1.9 * Math.max(binWidths[idx], binWidths[prevIdx]);
+    if (xGrid[idx] - xGrid[prevIdx] > gapThreshold) {
+      intervals.push([xGrid[startIdx], xGrid[prevIdx]]);
+      startIdx = idx;
     }
-    prev = included[k];
+    prevIdx = idx;
   }
-  intervals.push([start, prev]);
+  intervals.push([xGrid[startIdx], xGrid[prevIdx]]);
   return intervals;
 }
 
@@ -110,6 +121,13 @@ function quantileFromCdf(xGrid, cdf, p) {
   const t = (p - cdf[lo]) / (cdf[hi] - cdf[lo]);
   return xGrid[lo] + t * (xGrid[hi] - xGrid[lo]);
 }
+```
+
+```js
+// Re-created whenever the distribution family changes, so a frozen axis from
+// one distribution (e.g. a negative range) isn't kept when switching to a
+// distribution with different support (e.g. positive-only).
+const frozenState = distType && createFreezeState();
 ```
 
 <div class="dist-layout">
@@ -190,8 +208,18 @@ if (dist.pdf(upper) < dist.pdf(dist.support[1])) upper = dist.support[1];
 ```
 
 ```js
+// Student-t with small df has very heavy tails, so a grid uniform in x is
+// either too coarse near the peak or wastefully fine in the tails. Instead
+// space it uniformly in probability (via the quantile function), which
+// concentrates points where the density is changing fastest.
 const gridN = 1000;
-const xGrid = d3.range(gridN).map((i) => lower + (upper - lower) * i / (gridN - 1));
+const xGrid = distType === "studentt"
+  ? d3.range(gridN).map((i) => {
+      const lo = 0.0005, hi = 0.9995;
+      const u = lo + (hi - lo) * i / (gridN - 1);
+      return params[0] + params[1] * jStat.studentt.inv(u, params[2]);
+    })
+  : d3.range(gridN).map((i) => lower + (upper - lower) * i / (gridN - 1));
 const pdfVals = xGrid.map(dist.pdf);
 const pdfData = xGrid.map((x, i) => ({x, pdf: pdfVals[i]}));
 ```
@@ -210,10 +238,19 @@ const hpdAreaData = xGrid.map((x, i) => ({x, pdf: hpdIntervals.some(([lo, hi]) =
 ```
 
 ```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenState, freezeAxis, [lower, upper]);
+```
+
+```js
 Plot.plot({
   width: Math.min(900, width),
   height: 360,
-  x: {label: "x"},
+  x: {label: "x", domain: xDomain},
   y: {label: "density", zero: true},
   color: {
     legend: true,
@@ -222,12 +259,15 @@ Plot.plot({
   },
   marks: [
     Plot.ruleY([0]),
+    Plot.ruleX([xDomain[0]]),
     Plot.areaY(hpdAreaData, {x: "x", y: "pdf", fill: mvcolors[1], fillOpacity: 0.35}),
     Plot.lineY(pdfData, {x: "x", y: "pdf", stroke: mvcolors[2], strokeWidth: 2.5}),
     Plot.line([{x: equalTail[0], y: 0}, {x: equalTail[1], y: 0}], {x: "x", y: "y", stroke: mvcolors[0], strokeWidth: 5})
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 **${coverage}% HPD region**: ${hpdIntervals.map(([lo, hi]) => `(${lo.toFixed(3)}, ${hi.toFixed(3)})`).join(" ∪ ")}<br>
 **${coverage}% equal-tail interval**: (${equalTail[0].toFixed(3)}, ${equalTail[1].toFixed(3)})
