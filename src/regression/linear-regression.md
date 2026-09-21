@@ -12,7 +12,7 @@ import {notebookLink} from "../components/notebookLink.js";
 import {oneHot, cbind, leastSquares, zellnerPrior, ridgePrior, blockDiagonalPrior, bayesLinReg, marginalPosteriors} from "../components/regression.js";
 ```
 
-> This page illustrates Bayesian linear Gaussian regression of the daily number of bike rides (`nrides`) explained by temperature, weather, season, weekday and year, over two years of data.
+> Bayesian linear regression of the [daily number of bike rides](https://www.kaggle.com/datasets/marklvl/bike-sharing-dataset) in Washington D.C. during 2011-2012, explained by temperature, weather, season, weekday and year, over two years of data.
 
 ```js
 const bikes = FileAttachment("../data/bikesday_reduced.csv").csv({typed: true});
@@ -35,9 +35,8 @@ const ols = leastSquares(y, Z);
 ```
 
 ```js
-const colorMap = new Map(varnames.map((v, i) => [v, mvcolors[i % mvcolors.length]]));
 function groupColor(vars) {
-  return {domain: vars, range: vars.map((v) => colorMap.get(v))};
+  return {domain: vars, range: vars.map((v, i) => mvcolors[i % mvcolors.length])};
 }
 function groupData(pdfs, vars) {
   return pdfs.filter((d) => vars.includes(d.variable));
@@ -73,59 +72,44 @@ function marginalPlot(data, olsPoints, title, colors) {
 
 <div class="dist-layout dist-layout--wide">
 
-<div class="dist-main">
-
-<div class="card">
-<b>Prior settings</b>
-${settingsInput}
+<div class="card prior-settings-card">
+<div class="prior-settings-row">
+  <div>
+  <b>Prior settings for ${tex`\boldsymbol{\beta}`}</b>
+  <div class="prior-type-row">${priorTypeInput}</div>
+  ${priorRestInput}
+  </div>
+  <div class="prior-settings-divider"></div>
+  <div>
+  <b>Prior settings for ${tex`\sigma^2`}</b>
+  <div class="prior-type-row-spacer"></div>
+  ${sigma2Input}
+  </div>
+</div>
 
 ```js
-const settingsInput = Inputs.form([
-  Inputs.radio(["Zellner g-prior", "Ridge prior"], {label: tex`\Omega_{0,\text{rest}}\text{:}`, value: "Zellner g-prior"}),
+const priorTypeInput = Inputs.radio(["Zellner g-prior", "Ridge prior"], {label: tex`\Omega_{0,\text{rest}}\text{:}`, value: "Zellner g-prior"});
+const priorType = view(priorTypeInput);
+```
+
+```js
+const priorRestInput = Inputs.form([
   Inputs.range([1, 100000], {value: 100, step: 1, label: tex`\kappa_0`, transform: Math.log}),
   Inputs.range([-3000, 3000], {value: 1000, step: 10, label: tex`\mu_0`}),
-  Inputs.range([1, 100000], {value: 4, step: 1, label: tex`\omega_0`, transform: Math.log}),
-  Inputs.range([0, 50], {value: 5, step: 1, label: tex`\nu_0`}),
-  Inputs.range([1, 3000], {value: 1000, step: 10, label: tex`\sigma_0`})
+  Inputs.range([1, 100000], {value: 5, step: 1, label: tex`\omega_0`, transform: Math.log})
 ]);
-const settings = view(settingsInput);
+const priorRest = view(priorRestInput);
 ```
-
-</div>
-
-<div class="card">
 
 ```js
-const priorType = settings[0];
-const kappa0 = settings[1];
-const muIntercept = settings[2];
-const omega0Intercept = settings[3];
-const nu0 = settings[4];
-const sigma0 = settings[5];
-
-const restOmega0 = priorType === "Zellner g-prior" ? zellnerPrior(kappa0, Zrest) : ridgePrior(kappa0, p - 1);
-const {mu0, Omega0} = blockDiagonalPrior(muIntercept, omega0Intercept, restOmega0);
-const post = bayesLinReg(y, Z, mu0, Omega0, nu0, sigma0 ** 2);
-const sigmaVect = post.invOmegaN.map((row, i) => Math.sqrt(post.sigma2N * row[i]));
-const allMarginals = marginalPosteriors(post.muN, sigmaVect, post.nuN, varnames);
+const sigma2Input = Inputs.form([
+  Inputs.range([0, 50], {value: 5, step: 1, label: tex`\nu_0`}),
+  Inputs.range([10, 3000], {value: 1000, step: 10, label: tex`\sigma_0`})
+]);
+const sigma2Settings = view(sigma2Input);
 ```
 
-<b>Marginal posterior distributions</b>
-<div class="grid grid-cols-2">
-  <div>${marginalPlot(groupData(allMarginals, mainVars), groupOls(mainVars), "Main effects", groupColor(mainVars))}</div>
-  <div>${marginalPlot(groupData(allMarginals, seasonVars), groupOls(seasonVars), "Season", groupColor(seasonVars))}</div>
-  <div>${marginalPlot(groupData(allMarginals, weekdayVars), groupOls(weekdayVars), "Weekday", groupColor(weekdayVars))}</div>
-  <div>${marginalPlot(groupData(allMarginals, weatherVars), groupOls(weatherVars), "Weather", groupColor(weatherVars))}</div>
 </div>
-
-<div style="font-size: 12px; color: var(--theme-foreground-muted);">Lines: marginal posterior ${tex`p(\beta_j\mid \boldsymbol{y})`}.<br>
-Dots: least squares estimates ${tex`\hat\beta_j`}.</div>
-
-</div>
-
-</div>
-
-<div class="dist-side">
 
 <div class="card">
 
@@ -138,6 +122,45 @@ ${tex`\boldsymbol{y} = \boldsymbol{X}\boldsymbol{\beta} + \boldsymbol{\varepsilo
 - ${tex`\boldsymbol{\beta}`} is ${tex`p\times 1`} vector with regression coefficients.
 
 </div>
+
+</div>
+
+<div class="dist-layout dist-layout--wide">
+
+<div class="dist-main">
+
+<div class="card">
+
+```js
+const kappa0 = priorRest[0];
+const muIntercept = priorRest[1];
+const omega0Intercept = priorRest[2];
+const nu0 = sigma2Settings[0];
+const sigma0 = sigma2Settings[1];
+
+const restOmega0 = priorType === "Zellner g-prior" ? zellnerPrior(kappa0, Zrest) : ridgePrior(kappa0, p - 1);
+const {mu0, Omega0} = blockDiagonalPrior(muIntercept, omega0Intercept, restOmega0);
+const post = bayesLinReg(y, Z, mu0, Omega0, nu0, sigma0 ** 2);
+const sigmaVect = post.invOmegaN.map((row, i) => Math.sqrt(post.sigma2N * row[i]));
+const allMarginals = marginalPosteriors(post.muN, sigmaVect, post.nuN, varnames);
+```
+
+<b>Marginal posterior distributions</b>
+<div class="grid grid-cols-2">
+  <div>${marginalPlot(groupData(allMarginals, mainVars), groupOls(mainVars), "Main covariates", groupColor(mainVars))}</div>
+  <div>${marginalPlot(groupData(allMarginals, seasonVars), groupOls(seasonVars), "Season covariates", groupColor(seasonVars))}</div>
+  <div>${marginalPlot(groupData(allMarginals, weekdayVars), groupOls(weekdayVars), "Weekday covariates", groupColor(weekdayVars))}</div>
+  <div>${marginalPlot(groupData(allMarginals, weatherVars), groupOls(weatherVars), "Weather covariates", groupColor(weatherVars))}</div>
+</div>
+
+<div style="font-size: 12px; color: var(--theme-foreground-muted);">Lines: marginal posterior ${tex`p(\beta_j\mid \boldsymbol{y})`}.<br>
+Dots: least squares estimates ${tex`\hat\beta_j`}.</div>
+
+</div>
+
+</div>
+
+<div class="dist-side">
 
 <div class="card">
 
@@ -190,6 +213,32 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/bayesian-linear-regress
 
 .dist-main figure {
   margin: 0;
+}
+
+.prior-settings-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.prior-settings-row form.inputs-3a86ea {
+  --label-width: 60px;
+  --input-width: 160px;
+  width: auto;
+}
+
+.prior-type-row form.inputs-3a86ea {
+  --label-width: auto;
+}
+
+.prior-type-row-spacer {
+  height: 27.875px;
+}
+
+.prior-settings-divider {
+  align-self: stretch;
+  width: 1px;
+  background: color-mix(in srgb, var(--theme-foreground) 20%, transparent);
 }
 
 </style>
