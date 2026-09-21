@@ -201,6 +201,16 @@ export default {
         {name: "Zero-Inflated Poisson", path: "/distributions/zero-inflated-poisson-distribution"},
         {name: "Zipf", path: "/distributions/zipf-distribution"}
       ]
+    },
+    {
+      name: "Time Series",
+      open: false,
+      pages: [
+        {
+          name: "Kalman Filter - Nile Data",
+          path: "/time-series/kalman-filter-nile-data"
+        }
+      ]
     }
   ],
   header: `
