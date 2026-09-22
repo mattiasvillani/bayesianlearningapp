@@ -207,6 +207,10 @@ export default {
       open: false,
       pages: [
         {
+          name: "Autoregressive process",
+          path: "/time-series/ar-simulation-and-autocorrelation"
+        },
+        {
           name: "Poisson with latent intensity",
           path: "/time-series/poisson-time-series-model"
         },
