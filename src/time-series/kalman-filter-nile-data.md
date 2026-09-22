@@ -3,9 +3,9 @@ title: Kalman Filter - Nile Data
 toc: false
 ---
 
-# Kalman filtering Nile river data
+# Kalman filtering and smoothing for the Nile river data
 
-_The Kalman filter computes the instantaneous estimate ${tex`\mu_{t\vert t}`} of an unobserved state at time ${tex`t`}, using only the data observed up to that time._
+_The **Kalman filter** computes the instantaneous estimate ${tex`\mu_{t\vert t}`} of an unobserved state at time ${tex`t`}, using only the data observed up to that time. The **Kalman smoother** computes the retrospective estimate using all the available data to infer the state back in time._
 
 ```js
 import * as optimjs from "npm:optimization-js";

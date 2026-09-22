@@ -207,7 +207,15 @@ export default {
       open: false,
       pages: [
         {
-          name: "Kalman Filter - Nile Data",
+          name: "Poisson with latent intensity",
+          path: "/time-series/poisson-time-series-model"
+        },
+        {
+          name: "Stochastic volatility model",
+          path: "/time-series/stochastic-volatility-time-series-model"
+        },
+        {
+          name: "Kalman Filtering and Smoothing",
           path: "/time-series/kalman-filter-nile-data"
         }
       ]
