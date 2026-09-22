@@ -177,7 +177,7 @@ const exactAcfData = exactAcf.map((a, lag) => ({lag, a, type: "exact"})).filter(
 <div class="card">
 
 **AR(*p*) model**<br>
-In steady-state (mean-deviation) form
+The AR process in steady-state (mean-deviation) form 
 
 ${tex.block`
 \begin{aligned}

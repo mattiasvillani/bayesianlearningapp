@@ -46,6 +46,24 @@ export default {
       ]
     },
     {
+      name: "Priors",
+      open: false,
+      pages: [
+        {
+          name: "Prior predictive Poisson",
+          path: "/priors/prior-predictive-poisson-model"
+        },
+        {
+          name: "Prior predictive Exponential",
+          path: "/priors/prior-predictive-exponential-model"
+        },
+        {
+          name: "Prior predictive AR process",
+          path: "/priors/prior-predictive-ar-process"
+        }
+      ]
+    },
+    {
       name: "Regression",
       open: false,
       pages: [
