@@ -192,6 +192,7 @@ export default {
         {name: "Logistic", path: "/distributions/logistic-distribution"},
         {name: "Logit-normal", path: "/distributions/logit-normal-distribution"},
         {name: "LogNormal", path: "/distributions/lognormal-distribution"},
+        {name: "Lomax", path: "/distributions/lomax-distribution"},
         {name: "Mixture of Poissons", path: "/distributions/mixture-of-poissons"},
         {name: "Multivariate logistic normal", path: "/distributions/multivariate-logisticnormal-distribution"},
         {name: "Multivariate Normal", path: "/distributions/multivariate-normal-distribution"},

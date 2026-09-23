@@ -120,9 +120,37 @@ const jointSigma2Domain = jointSigma2Bounds({nu0, sigma0, n, s, nun, sigman});
 ```
 
 ```js
+// Guards against "-0.00" from floating-point noise around zero.
+function fmt2(x) {
+  return Math.abs(x) < 0.005 ? "0.00" : x.toFixed(2);
+}
+```
+
+```js
+// Prior/posterior predictive of a new X, marginalizing over both theta and
+// sigma^2, is Student-t: scale is inflated by (kappa+1)/kappa relative to
+// the marginal posterior of theta, since X also has its own N(theta, sigma^2)
+// noise on top of the uncertainty in theta.
+const priorPredScale = sigma0 * Math.sqrt((kappa0 + 1) / kappa0);
+const postPredScale = sigman * Math.sqrt((kappan + 1) / kappan);
+
+const priorPredXlimlow = tquantile(0.005, mu0, priorPredScale, nu0);
+const priorPredXlimhigh = tquantile(0.995, mu0, priorPredScale, nu0);
+const postPredXlimlow = tquantile(0.005, mun, postPredScale, nun);
+const postPredXlimhigh = tquantile(0.995, mun, postPredScale, nun);
+
+const priorPredPdf = d3.range(priorPredXlimlow, priorPredXlimhigh, (priorPredXlimhigh - priorPredXlimlow) / 500)
+  .map((x) => ({x, pdf: tpdf(x, mu0, priorPredScale, nu0)}));
+const postPredPdf = d3.range(postPredXlimlow, postPredXlimhigh, (postPredXlimhigh - postPredXlimlow) / 500)
+  .map((x) => ({x, pdf: tpdf(x, mun, postPredScale, nun)}));
+```
+
+```js
 const frozenStateTheta = createFreezeState();
 const frozenStateSigma2 = createFreezeState();
 const frozenStateJointSigma2 = createFreezeState();
+const frozenPriorPredState = createFreezeState();
+const frozenPostPredState = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -161,15 +189,11 @@ const priorsettings = view(priorInput);
   </div>
 </div>
 
-<div class="card" style="padding-top: 0.25rem;">
+<div class="card" style="padding-top: 1rem;">
 
 ```js
-const viewInput = Inputs.radio(["Marginal distributions", "Joint distribution"], {value: "Marginal distributions"});
+const viewInput = Inputs.radio(["Marginal distributions", "Joint distribution", "Prior predictive", "Posterior predictive"], {value: "Marginal distributions"});
 const viewChoice = view(viewInput);
-```
-
-```js
-const showJoint = viewChoice === "Joint distribution";
 ```
 
 <div style="margin-bottom: 0.5rem; font-size: 13px;">${viewInput}</div>
@@ -180,13 +204,38 @@ const freezeAxis = view(freezeInput);
 ```
 
 ```js
-const xDomainTheta = resolveDomain(frozenStateTheta, freezeAxis, [xlimlowTheta, xlimhighTheta]);
-const xDomainSigma2 = resolveDomain(frozenStateSigma2, freezeAxis, [xlimlowSigma2, xlimhighSigma2]);
-const xDomainJointSigma2 = resolveDomain(frozenStateJointSigma2, freezeAxis, jointSigma2Domain);
+const showQuantileInput = Inputs.toggle({value: false});
+const showQuantile = view(showQuantileInput);
 ```
 
 ```js
-const plotsView = showJoint
+const quantileInput = viewChoice === "Prior predictive"
+  ? Inputs.range([priorPredXlimlow, priorPredXlimhigh], {value: Number(mu0.toFixed(2)), step: 0.01, label: "plot quantile", format: fmt2})
+  : Inputs.range([postPredXlimlow, postPredXlimhigh], {value: Number(mun.toFixed(2)), step: 0.01, label: "plot quantile", format: fmt2});
+const quantile = view(quantileInput);
+```
+
+```js
+const xDomainTheta = resolveDomain(frozenStateTheta, freezeAxis, [xlimlowTheta, xlimhighTheta]);
+const xDomainSigma2 = resolveDomain(frozenStateSigma2, freezeAxis, [xlimlowSigma2, xlimhighSigma2]);
+const xDomainJointSigma2 = resolveDomain(frozenStateJointSigma2, freezeAxis, jointSigma2Domain);
+const priorPredXDomain = resolveDomain(frozenPriorPredState, freezeAxis, [priorPredXlimlow, priorPredXlimhigh]);
+const postPredXDomain = resolveDomain(frozenPostPredState, freezeAxis, [postPredXlimlow, postPredXlimhigh]);
+```
+
+```js
+const quantileRowVisible = viewChoice === "Prior predictive" || viewChoice === "Posterior predictive";
+showQuantileInput.style.display = quantileRowVisible ? "" : "none";
+quantileInput.style.display = quantileRowVisible ? "" : "none";
+```
+
+<div class="quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+${showQuantileInput}
+${quantileInput}
+</div>
+
+```js
+const plotsView = viewChoice === "Joint distribution"
   ? html`<div>
       <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.5rem;">Joint posterior for ${tex`(\theta,\sigma^2)`}</h2>
       ${Plot.legend({
@@ -238,7 +287,8 @@ const plotsView = showJoint
     })}
       <div style="text-align: right; font-size: 13px; line-height: 1; margin-top: -12px; color: var(--theme-foreground-muted);">${tex`\theta`} →</div>
     </div>`
-  : html`<div style="display: flex; gap: 1rem;">
+  : viewChoice === "Marginal distributions"
+  ? html`<div style="display: flex; gap: 1rem;">
       <div style="flex: 1;">
       ${Plot.plot({
         width: Math.min(400, width),
@@ -277,6 +327,39 @@ const plotsView = showJoint
       })}
       <div style="text-align: right; font-size: 13px; line-height: 1; margin-top: -12px; color: var(--theme-foreground-muted);">${tex`\sigma^2`} →</div>
       </div>
+    </div>`
+  : viewChoice === "Prior predictive"
+  ? html`<div>
+      <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.5rem;">Prior predictive distribution</h2>
+      ${Plot.plot({
+        width: Math.min(720, width),
+        style: {fontSize: "13px"},
+        x: {label: "x", domain: priorPredXDomain},
+        y: {label: "p(x)"},
+        marks: [
+          Plot.ruleY([0]),
+          ...(showQuantile
+            ? [Plot.areaY(priorPredPdf, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[1], fillOpacity: 0.3})]
+            : []),
+          Plot.line(priorPredPdf, {x: "x", y: "pdf", stroke: mvcolors[1], strokeWidth: 2.5})
+        ]
+      })}
+    </div>`
+  : html`<div>
+      <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.5rem;">Posterior predictive distribution</h2>
+      ${Plot.plot({
+        width: Math.min(720, width),
+        style: {fontSize: "13px"},
+        x: {label: "x", domain: postPredXDomain},
+        y: {label: "p(x)"},
+        marks: [
+          Plot.ruleY([0]),
+          ...(showQuantile
+            ? [Plot.areaY(postPredPdf, {filter: (d) => d.x <= quantile, x: "x", y: "pdf", fill: mvcolors[2], fillOpacity: 0.3})]
+            : []),
+          Plot.line(postPredPdf, {x: "x", y: "pdf", stroke: mvcolors[2], strokeWidth: 2.5})
+        ]
+      })}
     </div>`;
 ```
 
@@ -290,7 +373,7 @@ ${plotsView}
 
 <div class="dist-side">
 
-<div class="card">
+<div class="card formula-card">
 
 **Model**<br>
 ${tex`X_1,\ldots,X_n \mid \theta,\sigma^2 \sim \operatorname{N}(\theta,\sigma^2)`}
@@ -313,18 +396,47 @@ ${tex`\sigma_n^2 = ${sigma2n.toPrecision(3)}`}
 **Marginal posterior for θ**<br>
 ${tex`\theta \mid \boldsymbol{x} \sim t_{\nu_n}\Big(\mu_n,\dfrac{\sigma_n^2}{\kappa_n}\Big)`}
 
+**Prior predictive**<br>
+${tex`\tilde X \sim t_{\nu_0}\Big(\mu_0,\, \sigma_0^2\dfrac{\kappa_0+1}{\kappa_0}\Big)`}
+
+**Posterior predictive**<br>
+${tex`\tilde X \mid \boldsymbol{x} \sim t_{\nu_n}\Big(\mu_n,\, \sigma_n^2\dfrac{\kappa_n+1}{\kappa_n}\Big)`}
+
 </div>
 
 <div class="card">
 
 ### Summary
 
-|  | Prior | Posterior |
-|---|---|---|
-| ${tex`\mu`} | ${mu0.toPrecision(3)} | ${mun.toPrecision(3)} |
-| ${tex`\kappa`} | ${kappa0.toPrecision(3)} | ${kappan.toPrecision(3)} |
-| ${tex`\nu`} | ${nu0.toPrecision(3)} | ${nun.toPrecision(3)} |
-| ${tex`\sigma`} | ${sigma0.toPrecision(3)} | ${sigman.toPrecision(3)} |
+```js
+const priorPredMean = nu0 > 1 ? mu0 : NaN;
+const priorPredSd = nu0 > 2 ? priorPredScale * Math.sqrt(nu0 / (nu0 - 2)) : Infinity;
+const postPredMean = nun > 1 ? mun : NaN;
+const postPredSd = nun > 2 ? postPredScale * Math.sqrt(nun / (nun - 2)) : Infinity;
+
+const summaryTable = viewChoice === "Prior predictive"
+  ? html`<table>
+      <tr><th></th><th>Prior predictive</th></tr>
+      <tr><td>Mean</td><td>${Number.isFinite(priorPredMean) ? priorPredMean.toPrecision(3) : "undefined"}</td></tr>
+      <tr><td>Standard deviation</td><td>${Number.isFinite(priorPredSd) ? priorPredSd.toPrecision(3) : "∞"}</td></tr>
+      <tr><td>${tex`P(\tilde X \le ${fmt2(quantile)})`}</td><td>${jStat.studentt.cdf((quantile - mu0) / priorPredScale, nu0).toPrecision(4)}</td></tr>
+    </table>`
+  : viewChoice === "Posterior predictive"
+  ? html`<table>
+      <tr><th></th><th>Posterior predictive</th></tr>
+      <tr><td>Mean</td><td>${Number.isFinite(postPredMean) ? postPredMean.toPrecision(3) : "undefined"}</td></tr>
+      <tr><td>Standard deviation</td><td>${Number.isFinite(postPredSd) ? postPredSd.toPrecision(3) : "∞"}</td></tr>
+      <tr><td>${tex`P(\tilde X \le ${fmt2(quantile)})`}</td><td>${jStat.studentt.cdf((quantile - mun) / postPredScale, nun).toPrecision(4)}</td></tr>
+    </table>`
+  : html`<table>
+      <tr><th></th><th>Prior</th><th>Posterior</th></tr>
+      <tr><td>${tex`\mu`}</td><td>${mu0.toPrecision(3)}</td><td>${mun.toPrecision(3)}</td></tr>
+      <tr><td>${tex`\kappa`}</td><td>${kappa0.toPrecision(3)}</td><td>${kappan.toPrecision(3)}</td></tr>
+      <tr><td>${tex`\nu`}</td><td>${nu0.toPrecision(3)}</td><td>${nun.toPrecision(3)}</td></tr>
+      <tr><td>${tex`\sigma`}</td><td>${sigma0.toPrecision(3)}</td><td>${sigman.toPrecision(3)}</td></tr>
+    </table>`;
+display(summaryTable);
+```
 
 </div>
 
@@ -338,6 +450,14 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/bayesian-inference-for-
 
 .dist-main figure {
   margin: 0;
+}
+
+.quantile-row form.inputs-3a86ea {
+  width: auto;
+}
+
+.formula-card .katex {
+  font-size: 1.1em;
 }
 
 </style>

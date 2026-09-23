@@ -125,13 +125,13 @@ const freezeAxis = view(freezeInput);
 ```
 
 ```js
-const showQuantileInput = Inputs.toggle({value: true});
+const showQuantileInput = Inputs.toggle({value: false});
 const showQuantile = view(showQuantileInput);
 ```
 
 ```js
 const quantileInput = viewMode === "Parameter posterior"
-  ? Inputs.range([Math.max(xlimlow, 0), xlimhigh], {value: Number(((xlimlow + xlimhigh) / 2).toFixed(2)), step: 0.01, label: "plot quantile", format: (x) => x.toFixed(2)})
+  ? Inputs.range([Math.max(xlimlow, 0), xlimhigh], {value: Number(((xlimlow + xlimhigh) / 2).toFixed(2)), step: 0.01, label: "plot quantile", format: (x) => (Math.abs(x) < 0.005 ? "0.00" : x.toFixed(2))})
   : viewMode === "Prior predictive"
   ? Inputs.range([0, priorPredXMaxDynamic], {value: Math.round(priorPredMean), step: 1, label: "plot quantile"})
   : Inputs.range([0, postPredXMaxDynamic], {value: Math.round(postPredMean), step: 1, label: "plot quantile"});
