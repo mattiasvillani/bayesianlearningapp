@@ -232,10 +232,9 @@ ${tex`\boldsymbol{\theta} \sim \operatorname{Dirichlet}(\alpha_1,\alpha_2,\alpha
 **Posterior**<br>
 ${tex`\boldsymbol{\theta} \mid \boldsymbol{y} \sim \operatorname{Dirichlet}(\alpha_1+y_1,\,\alpha_2+y_2,\,\alpha_3+y_3)`}
 
-**Prior predictive**<br>
-${tex`\tilde y_k \sim \operatorname{Beta\text{-}Bin}(m,\, \alpha_k,\, \alpha_0-\alpha_k)`}
-
-**Posterior predictive**<br>
+**Prior/posterior predictive**<br>
+For the count ${tex`\tilde y_k`} of category ${tex`k`} in a future sample of size ${tex`m`}, marginalizing over ${tex`\boldsymbol{\theta}`}:<br>
+${tex`\tilde y_k \sim \operatorname{Beta\text{-}Bin}(m,\, \alpha_k,\, \alpha_0-\alpha_k)`}<br>
 ${tex`\tilde y_k \mid \boldsymbol{y} \sim \operatorname{Beta\text{-}Bin}(m,\, \alpha_{n,k},\, \alpha_{n,0}-\alpha_{n,k})`}
 
 </div>
