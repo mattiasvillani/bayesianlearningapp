@@ -160,19 +160,19 @@ document.querySelectorAll(".predictive-controls-row").forEach((el) => {
 ${mtildeInput}
 </div>
 <div class="predictive-controls-row">
-<div class="predictive-controls-label">${showQuantileInput}<span>plot quantile</span></div>
+<div class="predictive-controls-label"><span>plot quantile</span>${showQuantileInput}</div>
 ${quantileInput}
 </div>
 
 ```js
 const predictivePlot = (data, color, label) =>
   html`<div>
+    <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.25rem; text-align: center;">${label}</h2>
     <div style="font-size: 12px; line-height: 1; color: var(--theme-foreground-muted); margin: 0 0 -10px;">↑ ${tex`p(\tilde y)`}</div>
     ${Plot.plot({
       width: Math.min(280, width),
       height: 220,
       style: {fontSize: "12px"},
-      title: label,
       x: {label: "count"},
       y: {label: null, axis: true},
       marks: [
