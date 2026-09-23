@@ -131,7 +131,7 @@ const viewMode = view(viewInput);
 ```
 
 ```js
-const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: tex`\text{future sample size, }m`});
+const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: html`future sample size, ${tex`m`}`});
 const mtilde = view(mtildeInput);
 ```
 
@@ -141,7 +141,7 @@ const showQuantile = view(showQuantileInput);
 ```
 
 ```js
-const quantileInput = Inputs.range([0, mtilde], {value: Math.round(mtilde / 2), step: 1, label: "plot quantile"});
+const quantileInput = Inputs.range([0, mtilde], {value: Math.round(mtilde / 2), step: 1, label: ""});
 const quantile = view(quantileInput);
 ```
 
@@ -154,6 +154,7 @@ quantileInput.style.display = predictiveControlsVisible ? "" : "none";
 
 <div class="predictive-controls" style="margin-bottom: 0.5rem; padding-left: 1.5rem;">${mtildeInput}</div>
 <div class="predictive-controls quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+<span style="display: inline-block; width: 182px;">plot quantile</span>
 ${showQuantileInput}
 ${quantileInput}
 </div>
