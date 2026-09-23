@@ -9,6 +9,7 @@ toc: false
 import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
+import {createFreezeState, resolveDomain} from "../components/freezeAxis.js";
 ```
 
 ```js
@@ -21,6 +22,10 @@ const pdfdata = d3.range(0, n + 1, 1).map((x) => ({x, pdf: betabinomPDF(x, n, al
 const mean = n * alpha / (alpha + beta);
 const variance = n * alpha * beta * (alpha + beta + n) / ((alpha + beta) ** 2 * (alpha + beta + 1));
 const cdf = d3.sum(pdfdata.filter((d) => d.x <= quantile).map((d) => d.pdf));
+```
+
+```js
+const frozenStateX = createFreezeState();
 ```
 
 <div class="dist-layout dist-layout--wide">
@@ -43,11 +48,20 @@ const quantile = view(Inputs.range([1, params[0]], {value: 3, step: 1, label: "q
 
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 0.25rem;">
+
+```js
+const freezeInput = Inputs.toggle({label: "Freeze x-axis", value: true});
+const freezeAxis = view(freezeInput);
+```
+
+```js
+const xDomain = resolveDomain(frozenStateX, freezeAxis, d3.range(0, n + 1, 1));
+```
 
 ```js
 Plot.plot({
-  x: {label: "x", axis: true, domain: d3.range(0, n + 1, 1)},
+  x: {label: "x", axis: true, domain: xDomain},
   y: {label: "f(x)", axis: true},
   marks: [
     Plot.ruleY([0]),
@@ -62,6 +76,8 @@ Plot.plot({
   ]
 })
 ```
+
+<div style="margin-top: -0.75rem; font-size: 13px;">${freezeInput}</div>
 
 </div>
 
