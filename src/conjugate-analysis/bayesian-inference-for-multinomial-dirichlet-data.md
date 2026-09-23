@@ -154,7 +154,7 @@ quantileInput.style.display = predictiveControlsVisible ? "" : "none";
 
 <div class="predictive-controls" style="margin-bottom: 0.5rem; padding-left: 1.5rem;">${mtildeInput}</div>
 <div class="predictive-controls quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-<span style="display: inline-block; width: 182px;">plot quantile</span>
+<span style="display: inline-block; width: 182px;"></span>
 ${showQuantileInput}
 ${quantileInput}
 </div>
