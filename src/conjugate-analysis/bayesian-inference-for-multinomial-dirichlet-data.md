@@ -167,8 +167,7 @@ ${quantileInput}
 ```js
 const predictivePlot = (data, color, label) =>
   html`<div>
-    <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.25rem; text-align: center;">${label}</h2>
-    <div style="font-size: 12px; line-height: 1; color: var(--theme-foreground-muted); margin: 0 0 -10px;">↑ ${tex`p(\tilde y)`}</div>
+    <h2 style="font-size: 15px; font-weight: 500; margin: 0 0 0.25rem; text-align: center;">${tex`\tilde y_${label}`}</h2>
     ${Plot.plot({
       width: Math.min(280, width),
       height: 220,
@@ -211,14 +210,14 @@ const plotsView = viewMode === "Parameter posterior"
     </div>`
   : viewMode === "Prior predictive"
   ? html`<div style="display: flex; gap: 1rem;">
-      <div style="flex: 1;">${predictivePlot(priorPredData[0], mvcolors[1], "ỹ₁")}</div>
-      <div style="flex: 1;">${predictivePlot(priorPredData[1], mvcolors[1], "ỹ₂")}</div>
-      <div style="flex: 1;">${predictivePlot(priorPredData[2], mvcolors[1], "ỹ₃")}</div>
+      <div style="flex: 1;">${predictivePlot(priorPredData[0], mvcolors[1], "1")}</div>
+      <div style="flex: 1;">${predictivePlot(priorPredData[1], mvcolors[1], "2")}</div>
+      <div style="flex: 1;">${predictivePlot(priorPredData[2], mvcolors[1], "3")}</div>
     </div>`
   : html`<div style="display: flex; gap: 1rem;">
-      <div style="flex: 1;">${predictivePlot(postPredData[0], mvcolors[2], "ỹ₁")}</div>
-      <div style="flex: 1;">${predictivePlot(postPredData[1], mvcolors[2], "ỹ₂")}</div>
-      <div style="flex: 1;">${predictivePlot(postPredData[2], mvcolors[2], "ỹ₃")}</div>
+      <div style="flex: 1;">${predictivePlot(postPredData[0], mvcolors[2], "1")}</div>
+      <div style="flex: 1;">${predictivePlot(postPredData[1], mvcolors[2], "2")}</div>
+      <div style="flex: 1;">${predictivePlot(postPredData[2], mvcolors[2], "3")}</div>
     </div>`;
 ```
 
@@ -314,6 +313,10 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/multinomial-dirichlet")
 
 .predictive-controls-row input[type="number"] {
   width: 55px;
+}
+
+.predictive-controls-row input[type="range"] {
+  max-width: 160px;
 }
 
 .formula-card .katex {
