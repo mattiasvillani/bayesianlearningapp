@@ -215,7 +215,7 @@ ${tex`X_1,\ldots,X_n \mid \theta,\sigma^2 \sim \operatorname{N}(\theta,\sigma^2)
 ${tex`\theta \sim \operatorname{N}(\mu_0,\tau_0^2)`}
 
 **Posterior**<br>
-${tex`\theta \mid \boldsymbol{x} \sim \operatorname{N}(\mu_n,\tau_n^2)`}
+${tex`\theta \mid x_1,\ldots,x_n \sim \operatorname{N}(\mu_n,\tau_n^2)`}
 
 **Posterior mean**<br>
 ${tex`\mu_n = w\bar x + (1-w)\mu_0`}
@@ -230,7 +230,7 @@ ${tex`w = \dfrac{n/\sigma^2}{n/\sigma^2+1/\tau_0^2}`}
 ${tex`\tilde X \sim \operatorname{N}(\mu_0,\, \tau_0^2+\sigma^2)`}
 
 **Posterior predictive**<br>
-${tex`\tilde X \mid \boldsymbol{x} \sim \operatorname{N}(\mu_n,\, \tau_n^2+\sigma^2)`}
+${tex`\tilde X \mid x_1,\ldots,x_n \sim \operatorname{N}(\mu_n,\, \tau_n^2+\sigma^2)`}
 
 </div>
 

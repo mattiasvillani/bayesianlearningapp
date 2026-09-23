@@ -7,6 +7,7 @@ toc: false
 
 ```js
 import * as math from "npm:mathjs";
+import jStat from "npm:jstat";
 import {mvcolors} from "../components/mvcolors.js";
 import {notebookLink} from "../components/notebookLink.js";
 import {ternaryDensity, ternaryGrid, themeColor} from "../components/functionLibrary.js";
@@ -20,6 +21,20 @@ function dirichletPdf(x, alpha) {
   let logp = -logBeta(alpha);
   for (let i = 0; i < x.length; i++) logp += (alpha[i] - 1) * Math.log(x[i]);
   return Math.exp(logp);
+}
+```
+
+```js
+// The marginal of one category's count in a future sample of size m from a
+// Dirichlet-Multinomial(m, alpha) is Beta-Binomial(m, alpha_k, alpha0 - alpha_k).
+function betabinomPdf(x, m, a, b) {
+  return jStat.combination(m, x) * jStat.betafn(x + a, m - x + b) / jStat.betafn(a, b);
+}
+function betabinomMean(m, a, b) {
+  return (m * a) / (a + b);
+}
+function betabinomVar(m, a, b) {
+  return (m * a * b * (a + b + m)) / ((a + b) ** 2 * (a + b + 1));
 }
 ```
 
@@ -60,6 +75,17 @@ const likeHeading = html`<h2 style="${headingStyle} color: ${mvcolors[0]};">Like
 const postHeading = html`<h2 style="${headingStyle} color: ${mvcolors[2]};">Posterior</h2>`;
 ```
 
+```js
+// Marginal prior/posterior predictive of each category's count in a future
+// sample of size m: y_k ~ Beta-Binomial(m, alpha_k, alpha0 - alpha_k).
+const priorPredData = [0, 1, 2].map((k) =>
+  d3.range(0, mtilde + 1, 1).map((x) => ({x, pdf: betabinomPdf(x, mtilde, alpha[k], alpha0 - alpha[k])}))
+);
+const postPredData = [0, 1, 2].map((k) =>
+  d3.range(0, mtilde + 1, 1).map((x) => ({x, pdf: betabinomPdf(x, mtilde, alphan[k], alphan0 - alphan[k])}))
+);
+```
+
 <div class="dist-layout dist-layout--wide">
 
 <div class="dist-main">
@@ -95,22 +121,99 @@ const priorsettings = view(priorInput);
   </div>
 </div>
 
-<div class="card">
+<div class="card" style="padding-top: 1rem;">
 
-<div style="display: flex; gap: 1rem;">
-  <div style="flex: 1;">
-  ${priorHeading}
-  ${ternaryDensity(priorDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: priorColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
-  </div>
-  <div style="flex: 1;">
-  ${likeHeading}
-  ${ternaryDensity(likeDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: likeColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
-  </div>
-  <div style="flex: 1;">
-  ${postHeading}
-  ${ternaryDensity(postDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: postColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
-  </div>
+${viewInput}
+
+```js
+const viewInput = Inputs.radio(["Parameter posterior", "Prior predictive", "Posterior predictive"], {value: "Parameter posterior"});
+const viewMode = view(viewInput);
+```
+
+```js
+const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: "future sample size, m"});
+const mtilde = view(mtildeInput);
+```
+
+```js
+const showQuantileInput = Inputs.toggle({value: false});
+const showQuantile = view(showQuantileInput);
+```
+
+```js
+const quantileInput = Inputs.range([0, mtilde], {value: Math.round(mtilde / 2), step: 1, label: "plot quantile"});
+const quantile = view(quantileInput);
+```
+
+```js
+const predictiveControlsVisible = viewMode === "Prior predictive" || viewMode === "Posterior predictive";
+mtildeInput.style.display = predictiveControlsVisible ? "" : "none";
+showQuantileInput.style.display = predictiveControlsVisible ? "" : "none";
+quantileInput.style.display = predictiveControlsVisible ? "" : "none";
+```
+
+<div style="margin-bottom: 0.5rem;">${mtildeInput}</div>
+<div class="quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+${showQuantileInput}
+${quantileInput}
 </div>
+
+```js
+const predictivePlot = (data, color, label) =>
+  Plot.plot({
+    width: Math.min(280, width),
+    height: 220,
+    style: {fontSize: "12px"},
+    title: label,
+    x: {label: "count"},
+    y: {label: null, axis: false},
+    marks: [
+      Plot.ruleY([0]),
+      Plot.rectY(data, {
+        x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color, fillOpacity: showQuantile ? 0.3 : 1,
+        title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
+      }),
+      ...(showQuantile
+        ? [Plot.rectY(data, {
+            filter: (d) => d.x <= quantile,
+            x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color,
+            title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
+          })]
+        : [])
+    ]
+  });
+```
+
+```js
+const plotsView = viewMode === "Parameter posterior"
+  ? html`<div style="display: flex; gap: 1rem;">
+      <div style="flex: 1;">
+      ${priorHeading}
+      ${ternaryDensity(priorDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: priorColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
+      </div>
+      <div style="flex: 1;">
+      ${likeHeading}
+      ${ternaryDensity(likeDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: likeColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
+      </div>
+      <div style="flex: 1;">
+      ${postHeading}
+      ${ternaryDensity(postDensity, resolution, {size: Math.min(280, width), margin: {left: 40, top: 40, right: 40, bottom: 40}, color: postColor, labelNodes: thetaLabelNodes, labelOffset: 2.6, dark})}
+      </div>
+    </div>`
+  : viewMode === "Prior predictive"
+  ? html`<div style="display: flex; gap: 1rem;">
+      <div style="flex: 1;">${predictivePlot(priorPredData[0], mvcolors[1], "ỹ₁")}</div>
+      <div style="flex: 1;">${predictivePlot(priorPredData[1], mvcolors[1], "ỹ₂")}</div>
+      <div style="flex: 1;">${predictivePlot(priorPredData[2], mvcolors[1], "ỹ₃")}</div>
+    </div>`
+  : html`<div style="display: flex; gap: 1rem;">
+      <div style="flex: 1;">${predictivePlot(postPredData[0], mvcolors[2], "ỹ₁")}</div>
+      <div style="flex: 1;">${predictivePlot(postPredData[1], mvcolors[2], "ỹ₂")}</div>
+      <div style="flex: 1;">${predictivePlot(postPredData[2], mvcolors[2], "ỹ₃")}</div>
+    </div>`;
+```
+
+${plotsView}
 
 </div>
 
@@ -118,7 +221,7 @@ const priorsettings = view(priorInput);
 
 <div class="dist-side">
 
-<div class="card">
+<div class="card formula-card">
 
 **Model**<br>
 ${tex`\boldsymbol{y} \mid \boldsymbol{\theta} \sim \operatorname{Multinomial}(n,\theta_1,\theta_2,\theta_3)`}
@@ -129,17 +232,41 @@ ${tex`\boldsymbol{\theta} \sim \operatorname{Dirichlet}(\alpha_1,\alpha_2,\alpha
 **Posterior**<br>
 ${tex`\boldsymbol{\theta} \mid \boldsymbol{y} \sim \operatorname{Dirichlet}(\alpha_1+y_1,\,\alpha_2+y_2,\,\alpha_3+y_3)`}
 
+**Prior predictive**<br>
+${tex`\tilde y_k \sim \operatorname{Beta\text{-}Bin}(m,\, \alpha_k,\, \alpha_0-\alpha_k)`}
+
+**Posterior predictive**<br>
+${tex`\tilde y_k \mid \boldsymbol{y} \sim \operatorname{Beta\text{-}Bin}(m,\, \alpha_{n,k},\, \alpha_{n,0}-\alpha_{n,k})`}
+
 </div>
 
 <div class="card">
 
 ### Summary
 
-|  | Prior mean | Posterior mean |
-|---|---|---|
-| ${tex`\theta_1`} | ${(alpha[0] / alpha0).toPrecision(3)} | ${(alphan[0] / alphan0).toPrecision(3)} |
-| ${tex`\theta_2`} | ${(alpha[1] / alpha0).toPrecision(3)} | ${(alphan[1] / alphan0).toPrecision(3)} |
-| ${tex`\theta_3`} | ${(alpha[2] / alpha0).toPrecision(3)} | ${(alphan[2] / alphan0).toPrecision(3)} |
+```js
+const summaryTable = viewMode === "Parameter posterior"
+  ? html`<table>
+      <tr><th></th><th>Prior mean</th><th>Posterior mean</th></tr>
+      <tr><td>${tex`\theta_1`}</td><td>${(alpha[0] / alpha0).toPrecision(3)}</td><td>${(alphan[0] / alphan0).toPrecision(3)}</td></tr>
+      <tr><td>${tex`\theta_2`}</td><td>${(alpha[1] / alpha0).toPrecision(3)}</td><td>${(alphan[1] / alphan0).toPrecision(3)}</td></tr>
+      <tr><td>${tex`\theta_3`}</td><td>${(alpha[2] / alpha0).toPrecision(3)}</td><td>${(alphan[2] / alphan0).toPrecision(3)}</td></tr>
+    </table>`
+  : viewMode === "Prior predictive"
+  ? html`<table>
+      <tr><th></th><th>Mean</th><th>SD</th><th>${tex`P(\tilde y_k \le ${quantile})`}</th></tr>
+      <tr><td>${tex`\tilde y_1`}</td><td>${betabinomMean(mtilde, alpha[0], alpha0 - alpha[0]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alpha[0], alpha0 - alpha[0])).toPrecision(3)}</td><td>${d3.sum(priorPredData[0].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+      <tr><td>${tex`\tilde y_2`}</td><td>${betabinomMean(mtilde, alpha[1], alpha0 - alpha[1]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alpha[1], alpha0 - alpha[1])).toPrecision(3)}</td><td>${d3.sum(priorPredData[1].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+      <tr><td>${tex`\tilde y_3`}</td><td>${betabinomMean(mtilde, alpha[2], alpha0 - alpha[2]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alpha[2], alpha0 - alpha[2])).toPrecision(3)}</td><td>${d3.sum(priorPredData[2].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+    </table>`
+  : html`<table>
+      <tr><th></th><th>Mean</th><th>SD</th><th>${tex`P(\tilde y_k \le ${quantile})`}</th></tr>
+      <tr><td>${tex`\tilde y_1`}</td><td>${betabinomMean(mtilde, alphan[0], alphan0 - alphan[0]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alphan[0], alphan0 - alphan[0])).toPrecision(3)}</td><td>${d3.sum(postPredData[0].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+      <tr><td>${tex`\tilde y_2`}</td><td>${betabinomMean(mtilde, alphan[1], alphan0 - alphan[1]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alphan[1], alphan0 - alphan[1])).toPrecision(3)}</td><td>${d3.sum(postPredData[1].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+      <tr><td>${tex`\tilde y_3`}</td><td>${betabinomMean(mtilde, alphan[2], alphan0 - alphan[2]).toPrecision(3)}</td><td>${Math.sqrt(betabinomVar(mtilde, alphan[2], alphan0 - alphan[2])).toPrecision(3)}</td><td>${d3.sum(postPredData[2].filter((d) => d.x <= quantile), (d) => d.pdf).toPrecision(4)}</td></tr>
+    </table>`;
+display(summaryTable);
+```
 
 </div>
 
@@ -153,6 +280,14 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/multinomial-dirichlet")
 
 .dist-main .card h2 ~ svg {
   margin-top: 0;
+}
+
+.quantile-row form.inputs-3a86ea {
+  width: auto;
+}
+
+.formula-card .katex {
+  font-size: 1.1em;
 }
 
 </style>

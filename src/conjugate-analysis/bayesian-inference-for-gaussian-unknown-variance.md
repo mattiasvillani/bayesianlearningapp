@@ -382,9 +382,12 @@ ${tex`X_1,\ldots,X_n \mid \theta,\sigma^2 \sim \operatorname{N}(\theta,\sigma^2)
 ${tex`\theta \mid \sigma^2 \sim \operatorname{N}\Big(\mu_0,\dfrac{\sigma^2}{\kappa_0}\Big)`}<br>
 ${tex`\sigma^2 \sim \text{Inv-}\chi^2(\nu_0,\sigma_0^2)`}
 
+**Marginal prior for ${tex`\theta`}**<br>
+${tex`\theta \sim t_{\nu_0}\Big(\mu_0,\dfrac{\sigma_0^2}{\kappa_0}\Big)`}
+
 **Posterior**<br>
-${tex`\theta \mid \sigma^2,\boldsymbol{x} \sim \operatorname{N}\Big(\mu_n,\dfrac{\sigma^2}{\kappa_n}\Big)`}<br>
-${tex`\sigma^2 \mid \boldsymbol{x} \sim \text{Inv-}\chi^2(\nu_n,\sigma_n^2)`}
+${tex`\theta \mid \sigma^2, x_1,\ldots,x_n \sim \operatorname{N}\Big(\mu_n,\dfrac{\sigma^2}{\kappa_n}\Big)`}<br>
+${tex`\sigma^2 \mid x_1,\ldots,x_n \sim \text{Inv-}\chi^2(\nu_n,\sigma_n^2)`}
 
 **Posterior hyperparameters**<br>
 ${tex`\kappa_n = \kappa_0+n = ${kappan.toPrecision(3)}`}<br>
@@ -393,14 +396,14 @@ ${tex`\mu_n = w\bar x+(1-w)\mu_0 = ${mun.toPrecision(3)}`}<br>
 ${tex`\nu_n = \nu_0+n = ${nun.toPrecision(3)}`}<br>
 ${tex`\sigma_n^2 = ${sigma2n.toPrecision(3)}`}
 
-**Marginal posterior for θ**<br>
-${tex`\theta \mid \boldsymbol{x} \sim t_{\nu_n}\Big(\mu_n,\dfrac{\sigma_n^2}{\kappa_n}\Big)`}
+**Marginal posterior for ${tex`\theta`}**<br>
+${tex`\theta \mid x_1,\ldots,x_n \sim t_{\nu_n}\Big(\mu_n,\dfrac{\sigma_n^2}{\kappa_n}\Big)`}
 
 **Prior predictive**<br>
-${tex`\tilde X \sim t_{\nu_0}\Big(\mu_0,\, \sigma_0^2\dfrac{\kappa_0+1}{\kappa_0}\Big)`}
+${tex`\tilde X \sim t_{\nu_0}\Big(\mu_0,\, \sigma_0^2\big(1+\frac{1}{\kappa_0}\big)\Big)`}
 
 **Posterior predictive**<br>
-${tex`\tilde X \mid \boldsymbol{x} \sim t_{\nu_n}\Big(\mu_n,\, \sigma_n^2\dfrac{\kappa_n+1}{\kappa_n}\Big)`}
+${tex`\tilde X \mid x_1,\ldots,x_n \sim t_{\nu_n}\Big(\mu_n,\, \sigma_n^2\big(1+\frac{1}{\kappa_n}\big)\Big)`}
 
 </div>
 
