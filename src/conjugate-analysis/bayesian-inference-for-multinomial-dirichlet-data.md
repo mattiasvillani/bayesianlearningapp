@@ -131,7 +131,7 @@ const viewMode = view(viewInput);
 ```
 
 ```js
-const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: html`future sample size, ${tex`m`}`});
+const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: ""});
 const mtilde = view(mtildeInput);
 ```
 
@@ -150,39 +150,47 @@ const predictiveControlsVisible = viewMode === "Prior predictive" || viewMode ==
 mtildeInput.style.display = predictiveControlsVisible ? "" : "none";
 showQuantileInput.style.display = predictiveControlsVisible ? "" : "none";
 quantileInput.style.display = predictiveControlsVisible ? "" : "none";
+document.querySelectorAll(".predictive-controls-row").forEach((el) => {
+  el.style.display = predictiveControlsVisible ? "grid" : "none";
+});
 ```
 
-<div class="predictive-controls" style="margin-bottom: 0.5rem; padding-left: 1.5rem;">${mtildeInput}</div>
-<div class="predictive-controls quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-<span style="display: inline-block; width: 182px;">plot quantile</span>
-${showQuantileInput}
+<div class="predictive-controls-row">
+<div class="predictive-controls-label">future sample size, ${tex`m`}</div>
+${mtildeInput}
+</div>
+<div class="predictive-controls-row">
+<div class="predictive-controls-label">${showQuantileInput}<span>plot quantile</span></div>
 ${quantileInput}
 </div>
 
 ```js
 const predictivePlot = (data, color, label) =>
-  Plot.plot({
-    width: Math.min(280, width),
-    height: 220,
-    style: {fontSize: "12px"},
-    title: label,
-    x: {label: "count"},
-    y: {label: null, axis: false},
-    marks: [
-      Plot.ruleY([0]),
-      Plot.rectY(data, {
-        x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color, fillOpacity: showQuantile ? 0.3 : 1,
-        title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
-      }),
-      ...(showQuantile
-        ? [Plot.rectY(data, {
-            filter: (d) => d.x <= quantile,
-            x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color,
-            title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
-          })]
-        : [])
-    ]
-  });
+  html`<div>
+    <div style="font-size: 12px; line-height: 1; color: var(--theme-foreground-muted); margin: 0 0 -10px;">↑ ${tex`p(\tilde y)`}</div>
+    ${Plot.plot({
+      width: Math.min(280, width),
+      height: 220,
+      style: {fontSize: "12px"},
+      title: label,
+      x: {label: "count"},
+      y: {label: null, axis: true},
+      marks: [
+        Plot.ruleY([0]),
+        Plot.rectY(data, {
+          x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color, fillOpacity: showQuantile ? 0.3 : 1,
+          title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
+        }),
+        ...(showQuantile
+          ? [Plot.rectY(data, {
+              filter: (d) => d.x <= quantile,
+              x1: (d) => d.x - 0.4, x2: (d) => d.x + 0.4, y: "pdf", fill: color,
+              title: (d) => `P(y=${d.x}) = ${d.pdf.toPrecision(4)}`
+            })]
+          : [])
+      ]
+    })}
+  </div>`;
 ```
 
 ```js
@@ -282,12 +290,30 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/multinomial-dirichlet")
   margin-top: 0;
 }
 
-.quantile-row form.inputs-3a86ea {
+.predictive-controls-row {
+  display: grid;
+  grid-template-columns: 190px auto;
+  align-items: center;
+  column-gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.predictive-controls-label {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.predictive-controls-row form.inputs-3a86ea {
   width: auto;
 }
 
-.predictive-controls form.inputs-3a86ea {
-  --label-width: 190px;
+.predictive-controls-row form.inputs-3a86ea label {
+  display: none;
+}
+
+.predictive-controls-row input[type="number"] {
+  width: 55px;
 }
 
 .formula-card .katex {
