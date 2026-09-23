@@ -131,7 +131,7 @@ const viewMode = view(viewInput);
 ```
 
 ```js
-const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: "future sample size, m"});
+const mtildeInput = Inputs.range([1, 60], {value: 10, step: 1, label: tex`\text{future sample size, }m`});
 const mtilde = view(mtildeInput);
 ```
 
@@ -152,8 +152,8 @@ showQuantileInput.style.display = predictiveControlsVisible ? "" : "none";
 quantileInput.style.display = predictiveControlsVisible ? "" : "none";
 ```
 
-<div style="margin-bottom: 0.5rem;">${mtildeInput}</div>
-<div class="quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+<div class="predictive-controls" style="margin-bottom: 0.5rem; padding-left: 1.5rem;">${mtildeInput}</div>
+<div class="predictive-controls quantile-row" style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
 ${showQuantileInput}
 ${quantileInput}
 </div>
@@ -283,6 +283,10 @@ ${notebookLink("https://observablehq.com/@mattiasvillani/multinomial-dirichlet")
 
 .quantile-row form.inputs-3a86ea {
   width: auto;
+}
+
+.predictive-controls form.inputs-3a86ea {
+  --label-width: 190px;
 }
 
 .formula-card .katex {
