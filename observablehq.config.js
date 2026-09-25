@@ -232,6 +232,10 @@ export default {
         {
           name: "Kalman Filtering and Smoothing",
           path: "/time-series/kalman-filter-nile-data"
+        },
+        {
+          name: "Time-varying regression model",
+          path: "/time-series/time-varying-regression-model"
         }
       ]
     }
