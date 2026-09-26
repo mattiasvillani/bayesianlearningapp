@@ -102,6 +102,10 @@ export default {
         {
           name: "Tails and Distribution of the Maximum",
           path: "/probability/distribution-of-the-maximum"
+        },
+        {
+          name: "Distributions on the Unit Simplex",
+          path: "/probability/distributions-on-the-unit-simplex"
         }
       ]
     },
